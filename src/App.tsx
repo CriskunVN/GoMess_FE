@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router";
 import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
+import SignupPage from "./pages/SignupPage";
 import ChatAppPage from "./pages/ChatAppPage";
 import { Toaster } from "sonner";
 function App() {
@@ -11,7 +11,7 @@ function App() {
         <Routes>
           {/* { Public routes} */}
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/register" element={<SignupPage />} />
 
           {/* { Private routes} */}
           <Route path="/" element={<ChatAppPage />} />
