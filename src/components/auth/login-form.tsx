@@ -1,4 +1,6 @@
 import { cn } from "@/lib/utils";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -9,49 +11,107 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { z } from "zod";
+import { Label } from "../ui/label";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useNavigate } from "react-router";
+
+const loginSchema = z.object({
+  username: z.string().min(1, "Hãy điền tên đăng nhập của bạn"),
+  password: z.string().min(1, "Hãy điền mật khẩu của bạn"),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const { login } = useAuthStore();
+  const navigate = useNavigate();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const onSubmit = () => async (data: LoginFormValues) => {
+    // Xử lý dữ liệu đăng nhập ở đây
+    const { username, password } = data;
+
+    await login(username, password);
+
+    // Chuyển hướng đến trang chính sau khi đăng nhập thành công
+    navigate("/");
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0 border-border">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8">
-            <FieldGroup>
-              <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Wellcome to the Hood</h1>
-                <p className="text-muted-foreground text-balance">
-                  Đăng nhập tài khoản của bạn
+          <form className="p-6 md:p-8" onSubmit={handleSubmit(onSubmit())}>
+            <div className="flex flex-col gap-6">
+              {/* header - logo */}
+              <div className="flex flex-col items-center text-center gap-2">
+                <a href="/" className="mx-auto block w-fit text-center">
+                  <img className="w-20" src="/public/logoapp.jpg" alt="" />
+                </a>
+
+                <h1 className="text-2xl font-bold"> Wellcome to GoMess</h1>
+                <p className="text-muted-foreground">
+                  Đăng nhập tài khoản của bạn 💚
                 </p>
               </div>
-              <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
+
+              {/* username */}
+
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="username" className="block text-sm">
+                  Tên đăng nhập
+                </Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
+                  type="text"
+                  id="username"
+                  placeholder="gomess"
+                  {...register("username")}
                 />
-              </Field>
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
-                    className="ml-auto text-sm underline-offset-2 hover:underline"
-                  >
-                    Quên mật khẩu?
-                  </a>
-                </div>
-                <Input id="password" type="password" required />
-              </Field>
-              <Field>
-                <Button type="submit">Đăng nhập</Button>
-              </Field>
+                {/* handle err */}
+                {errors.username && (
+                  <p className="text-sm text-destructive">
+                    {errors.username.message}
+                  </p>
+                )}
+              </div>
+
+              {/* password */}
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="password" className="block text-sm">
+                  Mật khẩu
+                </Label>
+                <Input
+                  type="password"
+                  id="password"
+                  {...register("password")}
+                />
+                {/* handle err */}
+                {errors.password && (
+                  <p className="text-sm text-destructive">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              {/* buttn đăng ký */}
+
+              <Button type="submit" className=" w-full" disabled={isSubmitting}>
+                Đăng nhập
+              </Button>
+
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                Hoặc tiếp tục với
+                hoặc đăng nhập với
               </FieldSeparator>
               <Field className="grid grid-cols-3 gap-4">
                 <Button variant="outline" type="button">
@@ -61,7 +121,7 @@ export function LoginForm({
                       fill="currentColor"
                     />
                   </svg>
-                  <span className="sr-only">Đăng nhập với Apple</span>
+                  <span className="sr-only">Login with Apple</span>
                 </Button>
                 <Button variant="outline" type="button">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -70,7 +130,7 @@ export function LoginForm({
                       fill="currentColor"
                     />
                   </svg>
-                  <span className="sr-only">Đăng nhập với Google</span>
+                  <span className="sr-only">Login with Google</span>
                 </Button>
                 <Button variant="outline" type="button">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -79,13 +139,17 @@ export function LoginForm({
                       fill="currentColor"
                     />
                   </svg>
-                  <span className="sr-only">Đăng nhập với Meta</span>
+                  <span className="sr-only">Login with Meta</span>
                 </Button>
               </Field>
-              <FieldDescription className="text-center">
-                Bạn chưa có tài khoản? <a href="/register">Đăng ký</a>
-              </FieldDescription>
-            </FieldGroup>
+
+              <div className="text-center text-sm">
+                Bạn chưa có tài khoản?{" "}
+                <a href="/register" className="underline underline-offset-4">
+                  Đăng ký
+                </a>
+              </div>
+            </div>
           </form>
           <div className="bg-muted relative hidden md:block">
             <img
