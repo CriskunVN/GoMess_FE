@@ -70,7 +70,7 @@ export function SignupForm({
               {/* header - logo */}
               <div className="flex flex-col items-center text-center gap-2">
                 <a href="/" className="mx-auto block w-fit text-center">
-                  <img className="w-20" src="/public/logoapp.jpg" alt="" />
+                  <img className="w-20" src="/logoapp.jpg" alt="" />
                 </a>
 
                 <h1 className="text-2xl font-bold"> Tạo tài khoản GoMess</h1>
@@ -184,7 +184,7 @@ export function SignupForm({
           </form>
           <div className="bg-muted relative hidden md:block">
             <img
-              src="/public/imgLogin.jpg"
+              src="/imgLogin.jpg"
               alt="Image"
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />

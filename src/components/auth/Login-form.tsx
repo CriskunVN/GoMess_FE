@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { useForm } from "react-hook-form";
+import { useForm, useFormState } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,13 +39,12 @@ export function LoginForm({
   });
 
   const onSubmit = () => async (data: LoginFormValues) => {
-    // Xử lý dữ liệu đăng nhập ở đây
     const { username, password } = data;
+    const success = await login(username, password);
 
-    await login(username, password);
-
-    // Chuyển hướng đến trang chính sau khi đăng nhập thành công
-    navigate("/");
+    if (success) {
+      navigate("/");
+    }
   };
 
   return (
@@ -57,7 +56,7 @@ export function LoginForm({
               {/* header - logo */}
               <div className="flex flex-col items-center text-center gap-2">
                 <a href="/" className="mx-auto block w-fit text-center">
-                  <img className="w-20" src="/public/logoapp.jpg" alt="" />
+                  <img className="w-20" src="/logoapp.jpg" alt="" />
                 </a>
 
                 <h1 className="text-2xl font-bold"> Wellcome to GoMess</h1>
@@ -153,7 +152,7 @@ export function LoginForm({
           </form>
           <div className="bg-muted relative hidden md:block">
             <img
-              src="/public/imgLogin.jpg"
+              src="/imgLogin.jpg"
               alt="Image"
               className="absolute inset-0 h-full w-full object-cover"
             />

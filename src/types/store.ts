@@ -5,6 +5,7 @@ export interface AuthState {
   user: User | null;
   loading: boolean;
 
+  clearState: () => void;
   signUp: (
     username: string,
     password: string,
@@ -12,5 +13,6 @@ export interface AuthState {
     firstName: string,
     lastName: string
   ) => Promise<void>;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<Boolean>;
+  signOut: () => Promise<void>;
 }
