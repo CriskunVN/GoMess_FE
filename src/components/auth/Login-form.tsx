@@ -38,20 +38,18 @@ export function LoginForm({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = () => async (data: LoginFormValues) => {
+  const onSubmit = async (data: LoginFormValues) => {
     const { username, password } = data;
-    const success = await login(username, password);
-
-    if (success) {
-      navigate("/");
-    }
+    await login(username, password);
+    // Chuyển hướng sau khi đăng nhập thành công
+    navigate("/");
   };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0 border-border">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8" onSubmit={handleSubmit(onSubmit())}>
+          <form className="p-6 md:p-8" onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-6">
               {/* header - logo */}
               <div className="flex flex-col items-center text-center gap-2">

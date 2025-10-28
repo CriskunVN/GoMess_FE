@@ -31,7 +31,7 @@ export const authService = {
       },
       { withCredentials: true }
     );
-    return res;
+    return res.data;
   },
 
   signOut: async () => {
@@ -42,5 +42,21 @@ export const authService = {
     );
 
     return res.data;
+  },
+
+  fetchMe: async () => {
+    const res = await api.get(`/${apiVersion}/users/me`, {
+      withCredentials: true,
+    });
+    return res.data.user;
+  },
+
+  refresh: async () => {
+    const res = await api.post(
+      `/${apiVersion}/auth/refresh`,
+      {},
+      { withCredentials: true }
+    );
+    return res.data.accessToken;
   },
 };
