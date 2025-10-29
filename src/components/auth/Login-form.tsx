@@ -15,6 +15,7 @@ import { z } from "zod";
 import { Label } from "../ui/label";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useNavigate } from "react-router";
+import Loader from "../ui/Loader";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Hãy điền tên đăng nhập của bạn"),
@@ -27,7 +28,7 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const { login } = useAuthStore();
+  const { login, loading } = useAuthStore();
   const navigate = useNavigate();
 
   const {
@@ -104,7 +105,13 @@ export function LoginForm({
               {/* buttn đăng ký */}
 
               <Button type="submit" className=" w-full" disabled={isSubmitting}>
-                Đăng nhập
+                {!loading ? (
+                  "Đăng nhập"
+                ) : (
+                  <div className="flex h-screen items-center justify-center">
+                    <Loader />
+                  </div>
+                )}
               </Button>
 
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">

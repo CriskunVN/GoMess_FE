@@ -16,42 +16,45 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// tự động gọi refresh api khi access token hết hạn
+// tự động refresh token khi nhận được phản hồi 401 từ server
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
+    // lấy request gốc
     const originalRequest = error.config;
-
-    // những api không cần check
+    // tránh các url không cần refresh
     if (
+      originalRequest.url.includes(`${apiVersion}/auth/refresh`) ||
       originalRequest.url.includes(`${apiVersion}/auth/login`) ||
-      originalRequest.url.includes(`${apiVersion}/auth/register`) ||
-      originalRequest.url.includes(`${apiVersion}/auth/refresh`)
+      originalRequest.url.includes(`${apiVersion}/auth/register`)
     ) {
       return Promise.reject(error);
     }
 
+    // biến đếm số lần refresh token
     originalRequest._retryCount = originalRequest._retryCount || 0;
-
+    // Nếu nhận được lỗi 403 và chưa thử refresh quá 4 lần
     if (error.response?.status === 403 && originalRequest._retryCount < 4) {
+      console.log("refresh token count : ", originalRequest._retryCount);
       originalRequest._retryCount += 1;
-
       try {
-        const res = await api.post("/auth/refresh", { withCredentials: true });
-        const newAccessToken = res.data.accessToken;
+        // refresh token và cập nhật lại accessToken trong store
+        const newAccessToken = await axios
+          .post(`${apiVersion}/auth/refresh`, { withCredentials: true })
+          .then((res) => res.data.accessToken);
 
         useAuthStore.getState().setAccessToken(newAccessToken);
 
+        // Cập nhật header của request gốc với accessToken mới
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
         return api(originalRequest);
-      } catch (refreshError) {
+      } catch (err) {
         useAuthStore.getState().clearState();
-        return Promise.reject(refreshError);
+        return Promise.reject(err);
       }
     }
-
     return Promise.reject(error);
   }
 );
-
 export default api;

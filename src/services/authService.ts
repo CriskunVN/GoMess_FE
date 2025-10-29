@@ -48,7 +48,8 @@ export const authService = {
     const res = await api.get(`/${apiVersion}/users/me`, {
       withCredentials: true,
     });
-    return res.data.user;
+
+    return res.data.data.user;
   },
 
   refresh: async () => {
@@ -58,5 +59,12 @@ export const authService = {
       { withCredentials: true }
     );
     return res.data.accessToken;
+  },
+
+  test: async () => {
+    const res = await api.get(`/${apiVersion}/auth/test`, {
+      withCredentials: true,
+    });
+    return res.data;
   },
 };

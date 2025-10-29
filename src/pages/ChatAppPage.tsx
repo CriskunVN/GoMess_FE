@@ -1,17 +1,34 @@
 import Logout from "@/components/auth/Logout";
+import { Button } from "@/components/ui/button";
+import api from "@/lib/axios";
 import { useAuthStore } from "@/stores/useAuthStore";
-import React from "react";
+import { useEffect } from "react";
+import { toast } from "sonner";
+import { ca } from "zod/v4/locales";
 
 const ChatAppPage = () => {
-  const user = useAuthStore((s) => s.user);
+  const { user, accessToken } = useAuthStore();
+  useEffect(() => {
+    console.log("ChatAppPage mounted");
+  }, []);
+
+  const handleTest = async () => {
+    try {
+      const res = await api.get("/api/v1/auth/test", { withCredentials: true });
+      toast.success(res.data.message);
+    } catch (error) {
+      console.error("Test auth failed:", error);
+      toast.error("Test auth failed!");
+    }
+  };
   return (
-    <div className="flex items-center justify-center min-h-svh bg-gradient-green">
-      <h1 className="text-4xl font-bold text-white">Chat Application</h1>
-      <p className="text-lg text-white">
-        Welcome to the Hood {!user || !user.username ? "Guest" : user.username}!
-      </p>
+    <>
+      <h1>Chat App Page</h1>
+      <p>User: {!user ? "No user found" : user.username}</p>
+      <p>Access Token: {accessToken || "No Access Token"}</p>
       <Logout />
-    </div>
+      <Button onClick={handleTest}>Test Auth</Button>
+    </>
   );
 };
 
