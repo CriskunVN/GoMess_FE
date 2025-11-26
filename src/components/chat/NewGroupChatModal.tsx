@@ -1,7 +1,7 @@
 import React from "react";
 
 const NewGroupChat = () => {
-  return <div></div>;
+  return <div> create gr chat</div>;
 };
 
 export default NewGroupChat;

@@ -20,7 +20,7 @@ import CreateNewChat from "../chat/CreateNewChatModal";
 import NewGroupChat from "../chat/NewGroupChatModal";
 import GroupChatList from "../chat/GroupChatList";
 import AddFriendModal from "../chat/AddFriendModal";
-import DirectMessageList from "../chat/DirectMessageList";
+import DirectMessageList from "../chat/DirectChatList";
 import { useThemeStore } from "@/stores/useThemeStore";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

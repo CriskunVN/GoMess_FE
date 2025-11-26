@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { authService } from "@/services/authService";
 import type { AuthState } from "@/types/store";
 import { persist } from "zustand/middleware";
+import { useChatStore } from "./useChatStore";
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -14,6 +15,7 @@ export const useAuthStore = create<AuthState>()(
       clearState: () => {
         set({ accessToken: null, user: null, loading: false });
         localStorage.clear();
+        useChatStore.getState().reset();
       },
       setAccessToken: (accessToken: string) => {
         set({ accessToken });
@@ -43,6 +45,7 @@ export const useAuthStore = create<AuthState>()(
           set({ loading: true });
 
           localStorage.clear();
+          useChatStore.getState().reset();
 
           // Gọi API đăng nhập ở đây
           const { accessToken } = await authService.login(username, password);
@@ -51,6 +54,8 @@ export const useAuthStore = create<AuthState>()(
 
           // Lấy thông tin user
           await get().fetchMe();
+
+          useChatStore.getState().fetchConversations();
 
           toast.success("Chào mừng bạn đã đến với thế giới GoMess!🎉");
         } catch (error) {

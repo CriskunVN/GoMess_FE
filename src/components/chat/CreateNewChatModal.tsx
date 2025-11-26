@@ -1,7 +1,7 @@
 import React from "react";
 
 const CreateNewChat = () => {
-  return <div></div>;
+  return <div>create chat</div>;
 };
 
 export default CreateNewChat;

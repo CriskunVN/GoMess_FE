@@ -1,6 +1,7 @@
 import type { Conversation, Message } from "./chat";
 import type { User } from "./user";
 
+// Interface Auth
 export interface AuthState {
   accessToken: string | null;
   user: User | null;
@@ -28,7 +29,7 @@ export interface ThemeStore {
 }
 
 export interface ChatState {
-  conversation: Conversation[];
+  conversations: Conversation[];
   messages: Record<
     string,
     {
@@ -42,4 +43,5 @@ export interface ChatState {
   reset: () => void;
 
   setActiveConversation: (id: string | null) => void;
+  fetchConversations: () => Promise<void>;
 }
