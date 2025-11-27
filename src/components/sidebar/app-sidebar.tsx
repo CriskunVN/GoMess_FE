@@ -37,7 +37,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton
               size="lg"
               asChild
-              className="bg-gradient-to-r green-400/80 from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
+              className="bg-gradient-to-r from-[#00c49f] to-[#006955] 
+            hover:from-[#00a385] hover:to-[#004d40] 
+            transition-all duration-300 ease-in-out"
             >
               <a href="#">
                 <div className="flex w-full items-center px-2 justify-between">

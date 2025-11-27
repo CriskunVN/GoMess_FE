@@ -98,20 +98,17 @@
       rgb(0, 255, 170),
       transparent
     );
-    --gradient-green-text: radial-gradient(
-      ellipse at center,
-      #34d399 0%,
-      rgba(0, 255, 0, 0.9) 40%,
-      rgba(32, 141, 4, 0.8) 70%,
-      rgba(7, 192, 7, 0.6) 100%
+    --gradient-green-text: linear-gradient(
+      180deg,
+      #ffffff 0%,
+      /* Trắng tinh */ #e2e8f0 100% /* Màu bạc nhẹ (Slate-200) */
     );
 
-    --grandient-bgChat: radial-gradient(
-      ellipse at center,
-      #34d399 0%,
-      rgba(0, 255, 0, 0.9) 40%,
-      rgba(32, 141, 4, 0.8) 70%,
-      rgba(7, 192, 7, 0.6) 100%
+    --grandient-bgChat: linear-gradient(
+      to right,
+      #00c49f 0%,
+      /* Màu chủ đạo của bạn */ #006955 100%
+        /* Màu teal đậm hơn để tạo độ sâu */
     );
 
     /* Shadows */
