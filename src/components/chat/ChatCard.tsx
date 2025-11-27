@@ -27,9 +27,9 @@ const ChatCard = ({
     <Card
       key={convoId}
       className={cn(
-        "border-none p-3 cursor-pointer transition-smooth glass hover:bg-muted/30",
+        "border-none p-3 cursor-pointer transition-smooth glass hover:bg-green-800/30",
         isActive &&
-          "ring-2 ring-primary/50 bg-gradient-to-tr from-primary-glow/10 to-primary-foreground"
+          "ring-2 ring-green-700/50 bg-gradient-to-tr from-green-700-glow/10 to-green-700-foreground"
       )}
       onClick={() => onSelect(convoId)}
     >
@@ -49,7 +49,6 @@ const ChatCard = ({
               {name}
             </h3>
             <span className="text-xs text-muted-foreground">
-              {" "}
               {timestamp ? formatOnlineTime(timestamp) : ""}
             </span>
           </div>

@@ -1,7 +1,7 @@
 import React from "react";
 
 const AddFriendModal = () => {
-  return <div></div>;
+  return <div>creat chat</div>;
 };
 
 export default AddFriendModal;

@@ -1,7 +1,7 @@
 import React from "react";
 import { Badge } from "../ui/badge";
 
-const UnreadBadge = ({ unreadCount }: { unreadCount: number }) => {
+const UnreadCountBadge = ({ unreadCount }: { unreadCount: number }) => {
   return (
     <div className="pulse-ring absolute z-20 -top-1 -right-1">
       <Badge
@@ -14,4 +14,4 @@ const UnreadBadge = ({ unreadCount }: { unreadCount: number }) => {
   );
 };
 
-export default UnreadBadge;
+export default UnreadCountBadge;

@@ -98,6 +98,21 @@
       rgb(0, 255, 170),
       transparent
     );
+    --gradient-green-text: radial-gradient(
+      ellipse at center,
+      #34d399 0%,
+      rgba(0, 255, 0, 0.9) 40%,
+      rgba(32, 141, 4, 0.8) 70%,
+      rgba(7, 192, 7, 0.6) 100%
+    );
+
+    --grandient-bgChat: radial-gradient(
+      ellipse at center,
+      #34d399 0%,
+      rgba(0, 255, 0, 0.9) 40%,
+      rgba(32, 141, 4, 0.8) 70%,
+      rgba(7, 192, 7, 0.6) 100%
+    );
 
     /* Shadows */
     --shadow-soft: 0 8px 32px -8px hsl(271 79% 47% / 0.15);
@@ -193,7 +208,7 @@
     /* pattern craft*/
     --gradient-green: radial-gradient(
       circle 500px at 50% 300px,
-      rgba(16, 185, 129, 0.35),
+      rgba(12, 255, 44, 0.35),
       transparent
     );
 
@@ -268,6 +283,14 @@
 
   .bg-gradient-green {
     background: var(--gradient-green);
+  }
+
+  .bg-gradient-bgChat {
+    background: var(--grandient-bgChat);
+  }
+
+  .bg-gradient-green-text {
+    background: var(--gradient-green-text);
   }
 
   .bg-gradient-green-hover {

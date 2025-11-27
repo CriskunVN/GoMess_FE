@@ -1,4 +1,4 @@
-import ChatWindownLayout from "@/components/chat/ChatWindownLayout";
+import ChatWindowLayout from "@/components/chat/ChatWindowLayout";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 const ChatAppPage = () => {
@@ -8,7 +8,7 @@ const ChatAppPage = () => {
 
       <div className="flex h-screen w-full p-2">
         {/* Main chat application content goes here */}
-        <ChatWindownLayout />
+        <ChatWindowLayout />
       </div>
     </SidebarProvider>
   );

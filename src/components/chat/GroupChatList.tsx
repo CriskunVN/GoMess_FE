@@ -9,11 +9,12 @@ const GroupChatList = () => {
   const groupConversations = conversations.filter(
     (convo) => convo.type == "group"
   );
+  console.log(groupConversations);
 
   return (
     <div className="flex-1 overflow-y-auto p-2 space-y-2">
       {groupConversations.map((convo) => (
-        <GroupMessageCard convo={convo} />
+        <GroupMessageCard convo={convo} key={convo._id} />
       ))}
     </div>
   );
