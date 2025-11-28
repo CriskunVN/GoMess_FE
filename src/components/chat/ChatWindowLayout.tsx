@@ -34,7 +34,7 @@ const ChatWindowLayout = () => {
         <ChatWindowBody />
       </div>
       {/* Footer */}
-      <MessageInput />
+      <MessageInput selectedConvo={selectedConvo} />
     </SidebarInset>
   );
 };
