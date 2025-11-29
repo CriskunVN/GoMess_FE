@@ -9,7 +9,7 @@ export const authService = {
     displayName: string
   ) => {
     const res = await api.post(
-      `/${apiVersion}/auth/register`,
+      `/auth/register`,
       {
         username,
         password,
@@ -24,7 +24,7 @@ export const authService = {
 
   login: async (username: string, password: string) => {
     const res = await api.post(
-      `/${apiVersion}/auth/login`,
+      `/auth/login`,
       {
         username,
         password,
@@ -35,17 +35,13 @@ export const authService = {
   },
 
   signOut: async () => {
-    const res = await api.post(
-      `/${apiVersion}/auth/logout`,
-      {},
-      { withCredentials: true }
-    );
+    const res = await api.post(`/auth/logout`, {}, { withCredentials: true });
 
     return res.data;
   },
 
   fetchMe: async () => {
-    const res = await api.get(`/${apiVersion}/users/me`, {
+    const res = await api.get(`/users/me`, {
       withCredentials: true,
     });
 
@@ -53,16 +49,12 @@ export const authService = {
   },
 
   refresh: async () => {
-    const res = await api.post(
-      `/${apiVersion}/auth/refresh`,
-      {},
-      { withCredentials: true }
-    );
+    const res = await api.post(`/auth/refresh`, {}, { withCredentials: true });
     return res.data.accessToken;
   },
 
   test: async () => {
-    const res = await api.get(`/${apiVersion}/auth/test`, {
+    const res = await api.get(`/auth/test`, {
       withCredentials: true,
     });
     return res.data;

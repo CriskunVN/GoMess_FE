@@ -10,17 +10,45 @@ const pageLimit = 50;
 
 export const chatService = {
   async fetchConversation(): Promise<ConversationResponse> {
-    const res = await api.get(`/${apiVersion}/conversations`);
+    const res = await api.get(`/conversations`);
     return { conversations: res.data.data };
   },
 
   async fetchMessage(id: string, cursor?: string): Promise<FetchMessageProps> {
     const res = await api.get(
-      `${apiVersion}/conversations/${id}/messages?limit=${pageLimit}&cursor= ${
+      `/conversations/${id}/messages?limit=${pageLimit}&cursor= ${
         cursor ?? "0"
       }`
     );
 
     return { messages: res.data.messages, cursor: res.data.nextCursor };
+  },
+
+  async sendDirectMessage(
+    recipientId: string,
+    content: string = "",
+    imgUrl: string,
+    conversationId?: string
+  ) {
+    const res = await api.post(`/messages/direct`, {
+      recipientId,
+      content,
+      imgUrl,
+      conversationId,
+    });
+    return res.data.messages;
+  },
+
+  async sendGroupMessage(
+    conversationId: string,
+    content: string = "",
+    imgUrl?: string
+  ) {
+    const res = await api.post("/messages/group", {
+      conversationId,
+      content,
+      imgUrl,
+    });
+    return res.data.messages;
   },
 };

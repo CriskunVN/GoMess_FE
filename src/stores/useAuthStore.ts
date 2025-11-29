@@ -42,10 +42,11 @@ export const useAuthStore = create<AuthState>()(
 
       login: async (username, password) => {
         try {
+          useChatStore.getState().reset();
+
           set({ loading: true });
 
           localStorage.clear();
-          useChatStore.getState().reset();
 
           // Gọi API đăng nhập ở đây
           const { accessToken } = await authService.login(username, password);

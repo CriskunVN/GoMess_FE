@@ -27,6 +27,7 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
     if (!messages[id]) {
       // todo:  fetch messages
       await fetchMessages();
+      console.log("Fetch Message in message card");
     }
   };
 

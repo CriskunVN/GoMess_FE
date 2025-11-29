@@ -23,6 +23,7 @@ const GroupMessageCard = ({ convo }: { convo: Conversation }) => {
     if (!messages) {
       // todo fetch messages
       await fetchMessages();
+      console.log("Fetch Message in message card");
     }
   };
 

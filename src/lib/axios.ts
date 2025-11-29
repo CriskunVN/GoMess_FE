@@ -3,7 +3,7 @@ import axios from "axios";
 const apiVersion = "api/v1";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: `http://localhost:8080/${apiVersion}`,
   withCredentials: true,
 });
 
@@ -24,9 +24,9 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     // tránh các url không cần refresh
     if (
-      originalRequest.url.includes(`${apiVersion}/auth/refresh`) ||
-      originalRequest.url.includes(`${apiVersion}/auth/login`) ||
-      originalRequest.url.includes(`${apiVersion}/auth/register`)
+      originalRequest.url.includes(`/auth/refresh`) ||
+      originalRequest.url.includes(`/auth/login`) ||
+      originalRequest.url.includes(`/auth/register`)
     ) {
       return Promise.reject(error);
     }
@@ -40,7 +40,7 @@ api.interceptors.response.use(
       try {
         // refresh token và cập nhật lại accessToken trong store
         const newAccessToken = await axios
-          .post(`${apiVersion}/auth/refresh`, { withCredentials: true })
+          .post(`/auth/refresh`, { withCredentials: true })
           .then((res) => res.data.accessToken);
 
         useAuthStore.getState().setAccessToken(newAccessToken);
