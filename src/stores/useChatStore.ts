@@ -119,7 +119,6 @@ export const useChatStore = create<ChatState>()(
       sendGroupMessage: async (conversationId, content, imgUrl = "") => {
         try {
           await chatService.sendGroupMessage(conversationId, content, imgUrl);
-          console.log("đã gửi tin nhắn group");
           set((state) => ({
             conversations: state.conversations.map((c) =>
               c._id === get().activeConversationId ? { ...c, seenBy: [] } : c
