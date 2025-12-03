@@ -23,6 +23,7 @@ import AddFriendModal from "../chat/AddFriendModal";
 import DirectMessageList from "../chat/DirectChatList";
 import { useThemeStore } from "@/stores/useThemeStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import NewGroupChatModal from "../chat/NewGroupChatModal";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { isDark, toggleTheme } = useThemeStore();
@@ -69,17 +70,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Chat list */}
+        {/* Group Chat list  */}
         <SidebarGroup>
           {/* left */}
-          <SidebarGroupLabel className="uppercase">
+          <SidebarGroupLabel className="p-0 text-xs font-bold text-zinc-500 uppercase tracking-wider">
             Cộng đồng 8
           </SidebarGroupLabel>
           {/* right */}
           <SidebarGroupAction title="Tạo Nhóm" className="cursor-pointer">
-            <NewGroupChat />
+            <NewGroupChatModal />
           </SidebarGroupAction>
-
           {/* Chat list here */}
           <SidebarGroupContent>
             <GroupChatList />
@@ -89,8 +89,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* Direct Message */}
         <SidebarGroup>
           {/* left */}
-          <SidebarGroupLabel className="uppercase">
-            Sủa với bạn bè
+          <SidebarGroupLabel className="p-0 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+            Gáy với bạn bè
           </SidebarGroupLabel>
           {/* right */}
           <SidebarGroupAction title="Kết Bạn" className="cursor-pointer">

@@ -6,8 +6,10 @@ import { cn } from "@/lib/utils";
 import UserAvt from "./UserAvt";
 import StatusBadge from "./StatusBadge";
 import UnreadCountBadge from "./UnreadCountBadge";
+import { useSocketStore } from "@/stores/useSocketStore";
 const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
   const { user } = useAuthStore();
+  const { onlineUsers } = useSocketStore();
   const {
     activeConversationId,
     setActiveConversation,
@@ -27,7 +29,7 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
     if (!messages[id]) {
       // todo:  fetch messages
       await fetchMessages();
-      console.log("Fetch Message in message card");
+      console.log("Fetch Message in message card direct");
     }
   };
 
@@ -53,7 +55,11 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
           />
           {/* status badge */}
           {/* todo : socket IO */}
-          <StatusBadge status="offline" />
+          <StatusBadge
+            status={
+              onlineUsers.includes(otherUser?._id ?? "") ? "online" : "offline"
+            }
+          />
           {/* unread count */}
           {unreadCount > 0 && <UnreadCountBadge unreadCount={unreadCount} />}
         </>

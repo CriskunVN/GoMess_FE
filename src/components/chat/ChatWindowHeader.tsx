@@ -10,10 +10,13 @@ import {
   SeparatorVertical,
   SeparatorVerticalIcon,
 } from "lucide-react";
+import { useSocketStore } from "@/stores/useSocketStore";
+import StatusBadge from "./StatusBadge";
 
 const ChatWindownHeader = ({ chat }: { chat?: Conversation }) => {
   const { conversations, activeConversationId } = useChatStore();
   const { user } = useAuthStore();
+  const { onlineUsers } = useSocketStore();
   let otherUser;
   chat = chat ?? conversations.find((c) => c._id === activeConversationId);
 
@@ -48,6 +51,14 @@ const ChatWindownHeader = ({ chat }: { chat?: Conversation }) => {
                     type={"sidebar"}
                     name={otherUser?.displayName || "GoMess"}
                     avtUrl={otherUser?.avatarUrl || undefined}
+                  />
+                  {/* Socket io : Display online / offline */}
+                  <StatusBadge
+                    status={
+                      onlineUsers.includes(otherUser?._id ?? "")
+                        ? "online"
+                        : "offline"
+                    }
                   />
                 </>
               ) : (

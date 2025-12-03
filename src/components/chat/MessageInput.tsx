@@ -15,20 +15,20 @@ const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
   if (!user) return;
 
   const sendMessage = async () => {
+    const currValue = value;
+    setvalue("");
     if (!value.trim()) return;
     try {
       if (selectedConvo.type === "direct") {
         const participants = selectedConvo.participants;
         const otherUser = participants.filter((p) => p._id !== user._id)[0];
-        await sendDirectMessage(otherUser._id, value);
+        await sendDirectMessage(otherUser._id, currValue);
       } else {
-        await sendGroupMessage(selectedConvo._id, value);
+        await sendGroupMessage(selectedConvo._id, currValue);
       }
     } catch (error) {
       console.error(error);
       toast.error("Lỗi xảy ra khi gửi tin nhắn , vui lòng thử lại");
-    } finally {
-      setvalue("");
     }
   };
 

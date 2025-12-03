@@ -1,6 +1,5 @@
 import api from "@/lib/axios";
 import type { ConversationResponse, Message } from "@/types/chat";
-const apiVersion = "api/v1";
 
 interface FetchMessageProps {
   messages: Message[];
@@ -15,11 +14,15 @@ export const chatService = {
   },
 
   async fetchMessage(id: string, cursor?: string): Promise<FetchMessageProps> {
-    const res = await api.get(
-      `/conversations/${id}/messages?limit=${pageLimit}&cursor= ${
-        cursor ?? "0"
-      }`
-    );
+    // Sử dụng query params đúng chuẩn và tránh khoảng trắng/giá trị rỗng gây lặp dữ liệu
+    // Khi cursor undefined: server sẽ trả trang đầu, còn khi null: client sẽ không gọi nữa
+    const res = await api.get(`/conversations/${id}/messages`, {
+      params: {
+        limit: pageLimit,
+        // Nếu cursor là chuỗi rỗng, gửi undefined để server hiểu là không có cursor
+        cursor: cursor && cursor.length > 0 ? cursor : undefined,
+      },
+    });
 
     return { messages: res.data.messages, cursor: res.data.nextCursor };
   },
@@ -50,5 +53,19 @@ export const chatService = {
       imgUrl,
     });
     return res.data.messages;
+  },
+
+  async createGroupConversation(name: string, memberIds: string[]) {
+    
+    const res = await api.post("/conversations/group", {
+      name,
+      memberIds,
+    });
+    return res.data.data; 
+  },
+
+  async fetchFriends() {
+    const res = await api.get("/friends");
+    return res.data.data; // trả về [{ _id, displayName, avatarUrl }]
   },
 };

@@ -1,7 +1,6 @@
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useChatStore } from "@/stores/useChatStore";
 import type { Conversation } from "@/types/chat";
-import React, { use } from "react";
 import ChatCard from "./ChatCard";
 import UnreadCountBadge from "./UnreadCountBadge";
 import GroupChatAvt from "./GroupChatAvt";
@@ -20,10 +19,10 @@ const GroupMessageCard = ({ convo }: { convo: Conversation }) => {
   const name = convo.group?.name ?? "";
   const handleSelectConversation = async (id: string) => {
     setActiveConversation(id);
-    if (!messages) {
+    if (!messages[id]) {
       // todo fetch messages
       await fetchMessages();
-      console.log("Fetch Message in message card");
+      console.log("Fetch Message in message card group");
     }
   };
 

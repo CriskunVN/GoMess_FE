@@ -34,7 +34,7 @@ const MessageItems = ({
   return (
     <div
       className={cn(
-        "flex gap-2 message-bounce",
+        "flex gap-2 message-bounce mt-1",
         message.isOwn ? "justify-end" : "justify-start"
       )}
     >

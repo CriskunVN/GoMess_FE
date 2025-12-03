@@ -86,7 +86,6 @@ export const useAuthStore = create<AuthState>()(
           set({ user });
         } catch (error: any) {
           console.error("Lỗi khi lấy dữ liệu user : ", error);
-          toast.error("Lỗi khi lấy thông tin người dùng.");
         } finally {
           set({ loading: false });
         }
@@ -103,7 +102,7 @@ export const useAuthStore = create<AuthState>()(
           }
         } catch (error: any) {
           console.error("Lỗi khi làm mới access token:", error);
-          toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+          // toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
           get().clearState();
         } finally {
           set({ loading: false });
