@@ -183,10 +183,10 @@ export const useChatStore = create<ChatState>()(
         if (pendingMessages.length === 0) return;
 
         const messagesToSend = [...pendingMessages];
-        set({ pendingMessages: [] }); // Clear queue to avoid duplicates, will re-add if failed
+        set({ pendingMessages: [] }); // xóa tin nhắn trong hàng đợi
 
         for (const msg of messagesToSend) {
-          // Remove from UI first to avoid duplication when re-adding or fetching
+          // xóa tin nhắn trong UI để tránh trùng khi re-add hoặc fetch
            set((state) => {
              const convoId = msg.conversationId;
              const currentMessages = state.messages[convoId]?.items || [];

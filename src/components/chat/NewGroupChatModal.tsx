@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge"; // Cần import Badge để hiển thị tag thành viên
 import { Check, Loader2, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { friendService } from "@/services/friendService";
 
 interface NewGroupChatModalProps {
   customTrigger?: React.ReactNode;
@@ -48,7 +49,7 @@ const NewGroupChatModal: React.FC<NewGroupChatModalProps> = ({
   const loadFriends = async () => {
     try {
       setListLoading(true);
-      const data = await chatService.fetchFriends();
+      const data = await friendService.fetchFriends();
       setFriends(Array.isArray(data) ? data : []);
     } catch (e) {
       console.warn("Failed to load friends", e);

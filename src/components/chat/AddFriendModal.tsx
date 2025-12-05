@@ -14,6 +14,7 @@ import { useChatStore } from "@/stores/useChatStore";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils"; // Giả sử bạn có utility này từ shadcn
 import { Loader2, Search, Send } from "lucide-react"; // Import icon từ lucide-react cho đẹp
+import { friendService } from "@/services/friendService";
 
 interface AddFriendModalProps {
   /**
@@ -52,7 +53,7 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({ customTrigger }) => {
     const load = async () => {
       try {
         setListLoading(true);
-        const data = await chatService.fetchFriends();
+        const data = await friendService.fetchFriends();
         setFriends(Array.isArray(data) ? data : []);
       } catch (e) {
         console.warn("Failed to load friends", e);
