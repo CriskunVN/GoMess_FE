@@ -63,6 +63,9 @@ export interface ChatState {
 
   //update convo
   updateConversation: (convo: Conversation) => void;
+  markConversationAsRead: (conversationId: string) => Promise<void>;
+  pendingMessages: Message[];
+  sendPendingMessages: () => Promise<void>;
 }
 
 export interface SocketState {

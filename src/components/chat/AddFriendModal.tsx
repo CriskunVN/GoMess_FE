@@ -102,10 +102,14 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({ customTrigger }) => {
         Nếu có customTrigger (từ Sidebar) thì dùng nó.
         Nếu không thì dùng nút tròn mặc định.
       */}
-      <div className="flex justify-end px-2">
-        {customTrigger ? (
-          <DialogTrigger asChild>{customTrigger}</DialogTrigger>
-        ) : (
+      {/* LOGIC TRIGGER:
+        Nếu có customTrigger (từ Sidebar) thì dùng nó.
+        Nếu không thì dùng nút tròn mặc định.
+      */}
+      {customTrigger ? (
+        <DialogTrigger asChild>{customTrigger}</DialogTrigger>
+      ) : (
+        <div className="flex justify-end px-2">
           <DialogTrigger asChild>
             <span
               role="button"
@@ -128,8 +132,8 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({ customTrigger }) => {
               </svg>
             </span>
           </DialogTrigger>
-        )}
-      </div>
+        </div>
+      )}
 
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

@@ -14,20 +14,22 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, Search } from "lucide-react";
 import { Switch } from "../ui/switch";
+import { Input } from "../ui/input";
 import CreateNewChat from "../chat/CreateNewChatModal";
-import NewGroupChat from "../chat/NewGroupChatModal";
 import GroupChatList from "../chat/GroupChatList";
 import AddFriendModal from "../chat/AddFriendModal";
 import DirectMessageList from "../chat/DirectChatList";
 import { useThemeStore } from "@/stores/useThemeStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import NewGroupChatModal from "../chat/NewGroupChatModal";
+import AddFriend from "../chat/AddFriend";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { isDark, toggleTheme } = useThemeStore();
   const { user } = useAuthStore();
+  const [searchTerm, setSearchTerm] = React.useState("");
 
   return (
     <Sidebar variant="inset" {...props}>
@@ -59,6 +61,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        <div className="pb-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-zinc-500" />
+            <Input
+              placeholder="Tìm kiếm bạn bè..."
+              className="pl-10 h-10 bg-background border-border focus-visible:ring-1 focus-visible:ring-primary transition-all text-base"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
       </SidebarHeader>
 
       {/* Content */}
@@ -67,6 +80,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup>
           <SidebarGroupContent>
             <CreateNewChat />
+            <AddFriend />
           </SidebarGroupContent>
         </SidebarGroup>
 
@@ -82,7 +96,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroupAction>
           {/* Chat list here */}
           <SidebarGroupContent>
-            <GroupChatList />
+            <GroupChatList searchTerm={searchTerm} />
           </SidebarGroupContent>
         </SidebarGroup>
 
@@ -99,7 +113,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
           {/* Chat list here */}
           <SidebarGroupContent>
-            <DirectMessageList />
+            <DirectMessageList searchTerm={searchTerm} />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

@@ -26,6 +26,18 @@ function App() {
     return () => disconnectSocket();
   }, [accessToken]);
 
+  useEffect(() => {
+    const handleOnline = () => {
+      console.log("Network is online, sending pending messages...");
+      import("./stores/useChatStore").then(({ useChatStore }) => {
+        useChatStore.getState().sendPendingMessages();
+      });
+    };
+
+    window.addEventListener("online", handleOnline);
+    return () => window.removeEventListener("online", handleOnline);
+  }, []);
+
   return (
     <>
       <Toaster richColors />

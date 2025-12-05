@@ -6,12 +6,13 @@ import { Separator } from "@radix-ui/react-separator";
 import UserAvt from "./UserAvt";
 import GroupChatAvt from "./GroupChatAvt";
 import {
-  SeparatorHorizontal,
-  SeparatorVertical,
-  SeparatorVerticalIcon,
+  Phone,
+  Video,
+  Info,
 } from "lucide-react";
 import { useSocketStore } from "@/stores/useSocketStore";
 import StatusBadge from "./StatusBadge";
+import { Button } from "../ui/button";
 
 const ChatWindownHeader = ({ chat }: { chat?: Conversation }) => {
   const { conversations, activeConversationId } = useChatStore();
@@ -35,7 +36,7 @@ const ChatWindownHeader = ({ chat }: { chat?: Conversation }) => {
 
   return (
     <>
-      <header className="sticky top-0 z-10 px-4 py-2 flex items-center bg-background">
+      <header className="sticky top-0 z-10 px-4 py-2 flex items-center bg-background border-b border-border/40">
         <div className="flex items-center gap-2 w-full">
           <SidebarTrigger className="-ml-1 text-foreground" />
           <Separator
@@ -73,6 +74,19 @@ const ChatWindownHeader = ({ chat }: { chat?: Conversation }) => {
                 ? otherUser?.displayName
                 : chat.group?.name}
             </h2>
+
+            {/* Actions */}
+            <div className="ml-auto flex items-center gap-1">
+              <Button variant="ghost" size="icon" className="text-primary hover:text-primary hover:bg-primary/10">
+                <Phone className="size-6" />
+              </Button>
+              <Button variant="ghost" size="icon" className="text-primary hover:text-primary hover:bg-primary/10">
+                <Video className="size-6" />
+              </Button>
+              <Button variant="ghost" size="icon" className="text-primary hover:text-primary hover:bg-primary/10">
+                <Info className="size-6 "  />
+              </Button>
+            </div>
           </div>
         </div>
       </header>

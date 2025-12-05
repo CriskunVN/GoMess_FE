@@ -4,7 +4,6 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useAuthStore } from "./useAuthStore";
 import type { Message } from "@/types/chat";
-import { UndoIcon } from "lucide-react";
 
 export const useChatStore = create<ChatState>()(
   persist(
@@ -14,8 +13,14 @@ export const useChatStore = create<ChatState>()(
       activeConversationId: null,
       convoLoading: false,
       messageLoading: false,
+      pendingMessages: [],
 
-      setActiveConversation: (id) => set({ activeConversationId: id }),
+      setActiveConversation: (id) => {
+        set({ activeConversationId: id });
+        if (id) {
+          get().markConversationAsRead(id);
+        }
+      },
       reset: () => {
         set({
           conversations: [],
@@ -99,8 +104,30 @@ export const useChatStore = create<ChatState>()(
       },
 
       sendDirectMessage: async (recipientId, content, imgUrl = "") => {
+        const { activeConversationId, addMessage } = get();
+        const { user } = useAuthStore.getState();
+
+        if (!navigator.onLine) {
+          const tempId = `temp-${Date.now()}`;
+          const tempMessage: Message = {
+            _id: tempId,
+            conversationId: activeConversationId || "",
+            senderId: user?._id || "",
+            content,
+            imgUrl,
+            createdAt: new Date().toISOString(),
+            isOwn: true,
+            isPending: true,
+          };
+          
+          set((state) => ({
+            pendingMessages: [...state.pendingMessages, { ...tempMessage, recipientId } as any],
+          }));
+          addMessage(tempMessage);
+          return;
+        }
+
         try {
-          const { activeConversationId } = get();
           await chatService.sendDirectMessage(
             recipientId,
             content,
@@ -117,6 +144,29 @@ export const useChatStore = create<ChatState>()(
         }
       },
       sendGroupMessage: async (conversationId, content, imgUrl = "") => {
+        const { addMessage } = get();
+        const { user } = useAuthStore.getState();
+
+        if (!navigator.onLine) {
+           const tempId = `temp-${Date.now()}`;
+           const tempMessage: Message = {
+            _id: tempId,
+            conversationId,
+            senderId: user?._id || "",
+            content,
+            imgUrl,
+            createdAt: new Date().toISOString(),
+            isOwn: true,
+            isPending: true,
+          };
+
+          set((state) => ({
+            pendingMessages: [...state.pendingMessages, { ...tempMessage, isGroup: true } as any],
+          }));
+          addMessage(tempMessage);
+          return;
+        }
+
         try {
           await chatService.sendGroupMessage(conversationId, content, imgUrl);
           set((state) => ({
@@ -126,6 +176,36 @@ export const useChatStore = create<ChatState>()(
           }));
         } catch (error) {
           console.error("Lỗi khi send message group", error);
+        }
+      },
+      sendPendingMessages: async () => {
+        const { pendingMessages, sendDirectMessage, sendGroupMessage } = get();
+        if (pendingMessages.length === 0) return;
+
+        const messagesToSend = [...pendingMessages];
+        set({ pendingMessages: [] }); // Clear queue to avoid duplicates, will re-add if failed
+
+        for (const msg of messagesToSend) {
+          // Remove from UI first to avoid duplication when re-adding or fetching
+           set((state) => {
+             const convoId = msg.conversationId;
+             const currentMessages = state.messages[convoId]?.items || [];
+             return {
+               messages: {
+                 ...state.messages,
+                 [convoId]: {
+                   ...state.messages[convoId],
+                   items: currentMessages.filter(m => m._id !== msg._id)
+                 }
+               }
+             }
+           });
+
+          if ((msg as any).isGroup) {
+            await sendGroupMessage(msg.conversationId, msg.content || "", msg.imgUrl || undefined);
+          } else {
+            await sendDirectMessage((msg as any).recipientId, msg.content || "", msg.imgUrl || undefined);
+          }
         }
       },
       addMessage: async (message: Message) => {
@@ -147,6 +227,12 @@ export const useChatStore = create<ChatState>()(
             if (prevItems.some((m) => m._id === message._id)) {
               return state;
             }
+
+            // nếu tin nhắn là tin nhắn của cuộc trò chuyện hiện tại, đánh dấu đã đọc
+            if (state.activeConversationId === convoId) {
+              get().markConversationAsRead(convoId);
+            }
+
             return {
               messages: {
                 ...state.messages,
@@ -169,12 +255,39 @@ export const useChatStore = create<ChatState>()(
           ),
         }));
       },
+      markConversationAsRead: async (conversationId: string) => {
+        const { user } = useAuthStore.getState();
+        if (!user) return;
+
+        // cập nhật UI ngay khi nhận được tin nhắn
+        set((state) => ({
+          conversations: state.conversations.map((c) => {
+            if (c._id === conversationId) {
+              return {
+                ...c,
+                unreadCounts: {
+                  ...c.unreadCounts,
+                  [user._id]: 0,
+                },
+              };
+            }
+            return c;
+          }),
+        }));
+
+        try {
+          await chatService.markAsRead(conversationId);
+        } catch (error) {
+          console.error("Lỗi khi đánh dấu đã đọc", error);
+        }
+      },
     }),
 
     {
       name: "chat-storage",
       partialize: (state) => ({
         conversations: state.conversations,
+        pendingMessages: state.pendingMessages,
       }),
     }
   )

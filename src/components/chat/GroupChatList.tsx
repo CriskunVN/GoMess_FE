@@ -1,13 +1,15 @@
 import { useChatStore } from "@/stores/useChatStore";
 import GroupMessageCard from "./GroupMessageCard";
 
-const GroupChatList = () => {
+const GroupChatList = ({ searchTerm = "" }: { searchTerm?: string }) => {
   const { conversations } = useChatStore();
 
   if (!conversations) return;
 
   const groupConversations = conversations.filter(
-    (convo) => convo.type == "group"
+    (convo) =>
+      convo.type == "group" &&
+      convo.group?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (

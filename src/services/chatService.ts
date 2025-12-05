@@ -68,4 +68,20 @@ export const chatService = {
     const res = await api.get("/friends");
     return res.data.data; // trả về [{ _id, displayName, avatarUrl }]
   },
+
+  async markAsRead(conversationId: string) {
+    await api.put(`/conversations/${conversationId}/read`);
+  },
+
+  async searchUsers(query: string) {
+    const res = await api.get("/users/search", {
+      params: { q: query },
+    });
+    return res.data.data;
+  },
+
+  async sendFriendRequest(userId: string) {
+    const res = await api.post("/friends/request", { userId });
+    return res.data;
+  },
 };

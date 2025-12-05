@@ -40,15 +40,10 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       useChatStore.getState().addMessage(message);
 
       const lastMessage = {
-        _id: conversation.lastMessage?._id || "",
-        content: conversation.lastMessage?.content || "",
-        createdAt:
-          conversation.lastMessage?.createdAt || new Date().toISOString(),
-        sender: {
-          _id: conversation.lastMessage?.sender._id || "",
-          displayName: conversation.lastMessage?.sender.displayName || "",
-          avatarUrl: conversation.lastMessage?.sender.avatarUrl || null,
-        },
+        _id: message._id,
+        content: message.content,
+        createdAt: message.createdAt,
+        sender: message.sender,
       };
 
       const updateConversation = {
@@ -60,11 +55,13 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       if (
         useChatStore.getState().activeConversationId === message.conversationId
       ) {
-        // đánh dấu đã học
+        useChatStore.getState().markConversationAsRead(message.conversationId);
       }
 
       useChatStore.getState().updateConversation(updateConversation);
     });
+
+
 
     // handle connection error
     socket.on("connect_error", (err) => {
