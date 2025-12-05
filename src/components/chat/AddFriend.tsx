@@ -59,8 +59,8 @@ const AddFriend = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          variant="ghost"
-          className="w-full justify-start gap-2 px-2 text-muted-foreground hover:text-foreground"
+          variant="outline"
+          className="w-40 justify-start gap-2 px-2 text-muted-foreground hover:text-foreground"
         >
           <UserPlus className="size-6" />
           <span className="text-base">Thêm bạn bè</span>

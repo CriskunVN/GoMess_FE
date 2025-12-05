@@ -19,10 +19,10 @@ const CreateNewChatModal = () => {
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="w-32 justify-start gap-2 px-2 text-muted-foreground hover:text-foreground"
+          className="w-40 justify-start gap-2 px-2 text-muted-foreground hover:text-foreground"
         >
           <Plus className="size-6" />
-          <span className="text-base">Tạo chat</span>
+          <span className="text-base">Tạo chat mới</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] bg-background/95 backdrop-blur-xl border-border/50">

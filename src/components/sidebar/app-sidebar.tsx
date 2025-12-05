@@ -78,8 +78,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent className="beautiful-scrollbar">
         {/* New chat */}
         <SidebarGroup>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="flex flex-row space-x-3">
             <CreateNewChat />
+            <span className="text-2xl text-muted-foreground">|</span>
             <AddFriend />
           </SidebarGroupContent>
         </SidebarGroup>
