@@ -41,7 +41,7 @@ const ChatWindowBody = () => {
   const unreadStartIndex = messages.length - unreadCount;
 
   return (
-    <div className="p-4 bg-primary-foreground h-full flex flex-col overflow-hidden">
+    <div className="p-4 h-full flex flex-col overflow-hidden">
       <div className="flex flex-col overflow-y-auto overflow-x-hidden beautiful-scrollbar">
         {messages.map((m, index) => {
           const prevMess = messages[index - 1];
@@ -80,7 +80,11 @@ const ChatWindowBody = () => {
                 index={index}
                 messages={messages}
                 selectedConvo={selectedConvo}
-                lastMessageStatus="Đã gửi"
+                lastMessageStatus={
+                  selectedConvo.seenBy.some((u) => u._id !== user?._id)
+                    ? "Đã xem"
+                    : "Đã gửi"
+                }
               />
             </div>
           );

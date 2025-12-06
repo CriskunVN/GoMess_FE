@@ -59,9 +59,25 @@ export const useAuthStore = create<AuthState>()(
           useChatStore.getState().fetchConversations();
 
           toast.success("Chào mừng bạn đã đến với thế giới GoMess!🎉");
-        } catch (error) {
-          console.error(error);
-          toast.error("Đăng nhập không thành công!");
+        } catch (error: any) {
+    // Kiểm tra xem có phản hồi từ Server không (lỗi Logic)
+    if (error.response) {
+      const serverMessage = error.response.data?.message;
+      
+      if (error.response.status === 400 || error.response.status === 401) {
+        toast.error(serverMessage || "Tài khoản hoặc mật khẩu không đúng!");
+      } else {
+        toast.error(serverMessage || "Có lỗi xảy ra, vui lòng thử lại!");
+      }
+    } 
+    // Kiểm tra lỗi mất mạng hoặc Server không chạy (Network Error)
+    else if (error.request) {
+      toast.error("Không thể kết nối đến máy chủ. Vui lòng kiểm tra mạng!");
+    } 
+    // Lỗi khác
+    else {
+      toast.error("Đăng nhập không thành công!");
+    }
         } finally {
           set({ loading: false });
         }

@@ -289,6 +289,24 @@
     background: var(--gradient-green-hover);
   }
 
+  /* Custom Chat Window Background */
+  .chat-window-bg {
+    background: radial-gradient(
+      125% 125% at 50% 90%,
+      #ffffff 40%,
+      #10b981 100%
+    );
+  }
+
+  .dark .chat-window-bg {
+    background: repeating-linear-gradient(45deg, 
+          rgba(0, 255, 128, 0.2) 0px, 
+          rgba(0, 255, 128, 0) 2px, 
+          transparent 2px, 
+          transparent 25px
+    );
+  }
+
   /* Shadows */
   .shadow-soft {
     box-shadow: var(--shadow-soft);

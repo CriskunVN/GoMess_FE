@@ -50,15 +50,36 @@ export const useSocketStore = create<SocketState>((set, get) => ({
         ...conversation,
         lastMessage,
         unreadCounts,
+        // Reset seenBy khi có tin nhắn mới để tránh hiện avatar cũ
+        seenBy: message.sender ? [message.sender] : [],
       };
 
-      if (
-        useChatStore.getState().activeConversationId === message.conversationId
-      ) {
-        useChatStore.getState().markConversationAsRead(message.conversationId);
-      }
-
       useChatStore.getState().updateConversation(updateConversation);
+    });
+
+    // message read event
+    socket.on("message-read", ({ conversationId, seenBy }) => {
+      // console.log("[socket] message-read received", { conversationId, seenBy });
+      // Tìm conversation hiện tại trong store để update
+      const currentConvos = useChatStore.getState().conversations;
+      const targetConvo = currentConvos.find((c) => c._id === conversationId);
+
+      if (targetConvo) {
+        // Khử trùng lặp seenBy
+        const uniqueSeenBy = Array.from(
+          new Map(
+            seenBy.map((u: any) => {
+              const id = typeof u === "string" ? u : u._id;
+              return [id, u];
+            })
+          ).values()
+        );
+
+        useChatStore.getState().updateConversation({
+          ...targetConvo,
+          seenBy: uniqueSeenBy as any,
+        });
+      }
     });
 
 

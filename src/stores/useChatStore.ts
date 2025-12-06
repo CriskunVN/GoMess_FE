@@ -228,8 +228,8 @@ export const useChatStore = create<ChatState>()(
               return state;
             }
 
-            // nếu tin nhắn là tin nhắn của cuộc trò chuyện hiện tại, đánh dấu đã đọc
-            if (state.activeConversationId === convoId) {
+            // nếu tin nhắn là tin nhắn của cuộc trò chuyện hiện tại và không phải của mình thì đánh dấu đã đọc
+            if (state.activeConversationId === convoId && !message.isOwn) {
               get().markConversationAsRead(convoId);
             }
 

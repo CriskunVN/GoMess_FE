@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 interface FriendRequest {
   _id: string;
-  sender: {
+  from: {
     _id: string;
     displayName: string;
     avatarUrl?: string;
@@ -16,7 +16,11 @@ interface FriendRequest {
   createdAt: string;
 }
 
-const FriendRequests = () => {
+interface FriendRequestsProps {
+  onRequestUpdate?: () => void;
+}
+
+const FriendRequests = ({ onRequestUpdate }: FriendRequestsProps) => {
   const [requests, setRequests] = useState<FriendRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState<string | null>(null);
@@ -24,8 +28,8 @@ const FriendRequests = () => {
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      const data = await friendService.fetchFriendRequests();
-      setRequests(Array.isArray(data) ? data : []);
+      const {received} = await friendService.fetchFriendRequests();
+      setRequests(Array.isArray(received) ? received : []);
     } catch (error) {
       console.error("Failed to fetch friend requests", error);
     } finally {
@@ -43,6 +47,7 @@ const FriendRequests = () => {
       await friendService.acceptFriendRequest(requestId);
       toast.success("Đã chấp nhận lời mời kết bạn");
       setRequests((prev) => prev.filter((r) => r._id !== requestId));
+      onRequestUpdate?.();
     } catch (error) {
       console.error("Failed to accept request", error);
       toast.error("Có lỗi xảy ra");
@@ -57,6 +62,7 @@ const FriendRequests = () => {
       await friendService.rejectFriendRequest(requestId);
       toast.success("Đã từ chối lời mời kết bạn");
       setRequests((prev) => prev.filter((r) => r._id !== requestId));
+      onRequestUpdate?.();
     } catch (error) {
       console.error("Failed to reject request", error);
       toast.error("Có lỗi xảy ra");
@@ -90,15 +96,15 @@ const FriendRequests = () => {
         >
           <div className="flex items-center gap-3">
             <Avatar>
-              <AvatarImage src={request.sender.avatarUrl} />
+              <AvatarImage src={request.from.avatarUrl} />
               <AvatarFallback>
-                {request.sender.displayName?.[0]?.toUpperCase()}
+                {request.from.displayName?.[0]?.toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="font-medium">{request.sender.displayName}</span>
+              <span className="font-medium">{request.from.displayName}</span>
               <span className="text-xs text-muted-foreground">
-                @{request.sender.username}
+                @{request.from.username}
               </span>
             </div>
           </div>

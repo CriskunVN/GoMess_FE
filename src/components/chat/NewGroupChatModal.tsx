@@ -78,7 +78,7 @@ const NewGroupChatModal: React.FC<NewGroupChatModalProps> = ({
 
   const handleCreate = async () => {
     // Validate: Tên nhóm + ít nhất 2 thành viên (thường nhóm cần > 2 người bao gồm cả chủ phòng)
-    if (!groupName.trim() || selectedMembers.length < 2) return;
+    if (!groupName.trim() || selectedMembers.length < 1) return;
 
     try {
       setLoading(true);
@@ -242,7 +242,7 @@ const NewGroupChatModal: React.FC<NewGroupChatModalProps> = ({
           </Button>
           <Button
             onClick={handleCreate}
-            disabled={loading || !groupName || selectedMembers.length < 2}
+            disabled={loading || !groupName || selectedMembers.length < 1}
             className="bg-emerald-600 hover:bg-emerald-500"
           >
             {loading ? "Đang tạo..." : "Tạo nhóm"}

@@ -31,9 +31,13 @@ const AddFriend = ({ className }: { className?: string }) => {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [seedRequest , setSeedRequest] = useState<string[]>([]);
+  // dùng để lưu danh sách người dùng tìm kiếm
   const [users, setUsers] = useState<User[]>([]);
+  // dùng để lưu danh sách bạn bè
   const [friends, setFriends] = useState<string[]>([]);
+  // dùng để chặn người dùng gửi lời mời kết bạn cho người đã gửi lời mời trước đó  
   const [requesting, setRequesting] = useState<string | null>(null);
+  const [receivedCount, setReceivedCount] = useState(0);
   const currentUser = useAuthStore((state) => state.user);
 
   useEffect(() => {
@@ -41,7 +45,14 @@ const AddFriend = ({ className }: { className?: string }) => {
       try {
         const friendsList = await friendService.fetchFriends();
         setFriends(friendsList.map((f: any) => f._id));
-        console.log(friendsList);
+        const { sent, received } = await friendService.fetchFriendRequests();
+        const seedRequests = Array.isArray(sent)
+          ? sent.map((r: any) => r.to._id)
+          : [];
+        setSeedRequest(seedRequests);
+        if (Array.isArray(received)) {
+          setReceivedCount(received.length);
+        }
       } catch (error) {
         console.error("Failed to fetch friends", error);
       }
@@ -69,9 +80,9 @@ const AddFriend = ({ className }: { className?: string }) => {
       const data = await friendService.searchUsers(query);
       if (Array.isArray(data)) {
         const filteredUsers = data.filter(
-          (user) => user.id !== currentUser?._id
+          (user) => user._id !== currentUser?._id
         );
-         setUsers(filteredUsers);
+        setUsers(filteredUsers);
       }
     } catch (error) {
       console.error("Failed to search users", error);
@@ -101,12 +112,20 @@ const AddFriend = ({ className }: { className?: string }) => {
         <Button
           variant="outline"
           className={cn(
-            "w-full justify-start gap-2 px-2 text-muted-foreground hover:text-foreground",
+            "w-full justify-start gap-2 px-2 text-muted-foreground hover:text-foreground relative",
             className
           )}
         >
-          <UserPlus className="size-6" />
+          <div className="relative">
+            <UserPlus className="size-6" />
+          </div>
           <span className="text-base">Thêm bạn bè</span>
+          {receivedCount > 0 && (
+            <span className="absolute top-1/2 -translate-y-1/2 right-2 flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+            </span>
+          )}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] bg-background/95 backdrop-blur-xl border-border/50">
@@ -117,7 +136,14 @@ const AddFriend = ({ className }: { className?: string }) => {
         <Tabs defaultValue="add-friend" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="add-friend">Kết bạn</TabsTrigger>
-            <TabsTrigger value="requests">Lời mời</TabsTrigger>
+            <TabsTrigger value="requests" className="relative">
+              Lời mời
+              {receivedCount > 0 && (
+                <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+                  {receivedCount}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="add-friend" className="mt-4">
@@ -148,7 +174,7 @@ const AddFriend = ({ className }: { className?: string }) => {
                 
                 {users.map((user: any) => (
                   <div
-                    key={user.id}
+                    key={user._id}
                     className="flex items-center justify-between p-2 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
@@ -165,13 +191,13 @@ const AddFriend = ({ className }: { className?: string }) => {
                         </span>
                       </div>
                     </div>
-                    {friends.includes(user.id) ? (
+                    {friends.includes(user._id) ? (
                       <Button size="sm" variant="outline" disabled className="text-green-500">
                         <Check className="h-4 w-4 mr-1" />
                         Đã kết bạn
                       </Button>
                     ) : (
-                      seedRequest.includes(user.id) ? (
+                      seedRequest.includes(user._id) ? (
                         <Button size="sm" variant="outline" disabled className="text-red-500">
                           <Loader2 className="h-4 w-4 animate-spin" />
                           Đã gửi
@@ -180,10 +206,10 @@ const AddFriend = ({ className }: { className?: string }) => {
                       <Button
                         size="sm"
                         variant="outline"
-                        disabled={requesting === user.id}
-                        onClick={() => handleAddFriend(user.id)}
+                        disabled={requesting === user._id}
+                        onClick={() => handleAddFriend(user._id)}
                       >
-                        {requesting === user.id ? (
+                        {requesting === user._id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
                           <UserPlus className="h-4 w-4" />
@@ -198,7 +224,7 @@ const AddFriend = ({ className }: { className?: string }) => {
           </TabsContent>
 
           <TabsContent value="requests" className="mt-4">
-            <FriendRequests />
+            <FriendRequests onRequestUpdate={() => setReceivedCount((prev) => Math.max(0, prev - 1))} />
           </TabsContent>
         </Tabs>
       </DialogContent>

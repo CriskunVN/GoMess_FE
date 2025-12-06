@@ -11,14 +11,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Trash2, Pin } from "lucide-react";
+import { MoreVertical, Trash2, Pin, Reply } from "lucide-react";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 interface MessageItemProps {
   message: Message;
   index: number;
   messages: Message[];
   selectedConvo: Conversation;
-  lastMessageStatus: "Đã gửi" | "Đã nhận";
+  lastMessageStatus: "Đã gửi" | "Đã nhận" | "Đã xem";
 }
 
 const MessageItems = ({
@@ -40,6 +42,7 @@ const MessageItems = ({
   const participant = selectedConvo.participants.find(
     (p: Participant) => p._id.toString() === message.senderId.toString()
   );
+
   return (
     <div
       className={cn(
@@ -91,6 +94,12 @@ const MessageItems = ({
           message.isOwn ? "items-end" : "items-start"
         )}
       >
+        {/* Sender Name */}
+        {!message.isOwn && isGroupBreak && selectedConvo.type !== "direct" && (
+          <span className="text-xs text-muted-foreground ml-1">
+            {participant?.displayName}
+          </span>
+        )}
         <Card
           onClick={() => setShowDetails(!showDetails)}
           className={cn(
@@ -112,11 +121,17 @@ const MessageItems = ({
           </span>
         )}
 
-        {/* seen / delivered / pending */}
-        {message.isOwn && (message._id === selectedConvo.lastMessage?._id || showDetails || message.isPending) && (
-          message.isPending ? (
-             <span className="text-xs text-muted-foreground px-1">Đang gửi...</span>
-          ) : (
+      {/* seen / delivered / pending */}
+      {message.isOwn &&
+        (message._id === selectedConvo.lastMessage?._id ||
+          showDetails ||
+          message.isPending) &&
+        (message.isPending ? (
+          <span className="text-xs text-muted-foreground px-1">
+            Đang gửi...
+          </span>
+        ) : (
+          <div className="flex items-center gap-1">
             <Badge
               variant="outline"
               className={cn(
@@ -128,35 +143,76 @@ const MessageItems = ({
             >
               {lastMessageStatus}
             </Badge>
-          )
-        )}
-      </div>
-
-      {/* Action Menu (Right for received messages) */}
-      {!message.isOwn && (
-        <div className="opacity-0 group-hover:opacity-100 transition-opacity px-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger className="focus:outline-none">
-              <MoreVertical className="size-4 text-muted-foreground hover:text-foreground" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem onClick={() => console.log("Pin message", message._id)}>
-                <Pin className="mr-2 size-4" />
-                <span>Ghim</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
-                onClick={() => console.log("Recall message", message._id)}
-              >
-                <Trash2 className="mr-2 size-4" />
-                <span>Thu hồi</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )}
+             {/* Seen By Avatars */}
+             {message._id === selectedConvo.lastMessage?._id && selectedConvo.seenBy.length > 0 && (
+               <div className="flex -space-x-2 overflow-hidden">
+                 {selectedConvo.seenBy
+                   .filter((u) => {
+                     const userId = typeof u === "string" ? u : u._id;
+                     return userId !== useAuthStore.getState().user?._id;
+                   })
+                   .map((u) => {
+                     const userId = typeof u === "string" ? u : u._id;
+                     const userDetails =
+                       selectedConvo.participants.find(
+                         (p) => p._id === userId
+                       ) || (typeof u === "object" ? u : { _id: userId, displayName: "?", avatarUrl: null });
+                     
+                     return (
+                       <Avatar
+                         key={userId}
+                         className="inline-block h-4 w-4 rounded-full ring-2 ring-background"
+                       >
+                         <AvatarImage
+                           src={userDetails.avatarUrl || undefined}
+                         />
+                         <AvatarFallback className="text-[6px]">
+                           {userDetails.displayName?.[0]}
+                         </AvatarFallback>
+                       </Avatar>
+                     );
+                   })}
+               </div>
+             )}
+          </div>
+        ))}
     </div>
-  );
+
+    {/* Action Menu (Right for received messages) */}
+    {!message.isOwn && (
+      <div className="opacity-0 group-hover:opacity-100 transition-opacity px-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger className="focus:outline-none">
+            <MoreVertical className="size-4 text-muted-foreground hover:text-foreground" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem
+              onClick={() => console.log("Pin message", message._id)}
+            >
+              <Pin className="mr-2 size-4" />
+              <span>Ghim</span>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={() => console.log("Reply message", message._id)}
+            >
+              <Reply className="mr-2 size-4" />
+              <span>Trả lời</span>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              className="text-destructive focus:text-destructive"
+              onClick={() => console.log("Recall message", message._id)}
+            >
+              <Trash2 className="mr-2 size-4" />
+              <span>Thu hồi</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    )}
+  </div>
+);
 };
 
 export default MessageItems;

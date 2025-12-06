@@ -57,7 +57,8 @@ export const chatService = {
 
   async createGroupConversation(name: string, memberIds: string[]) {
     
-    const res = await api.post("/conversations/group", {
+    const res = await api.post("/conversations", {
+      type: "group",
       name,
       memberIds,
     });

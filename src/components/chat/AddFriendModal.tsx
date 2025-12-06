@@ -99,14 +99,7 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({ customTrigger }) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {/* LOGIC TRIGGER:
-        Nếu có customTrigger (từ Sidebar) thì dùng nó.
-        Nếu không thì dùng nút tròn mặc định.
-      */}
-      {/* LOGIC TRIGGER:
-        Nếu có customTrigger (từ Sidebar) thì dùng nó.
-        Nếu không thì dùng nút tròn mặc định.
-      */}
+     
       {customTrigger ? (
         <DialogTrigger asChild>{customTrigger}</DialogTrigger>
       ) : (

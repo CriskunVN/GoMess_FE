@@ -14,22 +14,23 @@ export const friendService = {
   },
 
   async sendFriendRequest(userId: string) {
-    const res = await api.post("/friends/request", { userId });
+    const res = await api.post("/friends/requests", { to: userId });
     return res.data; // trả về { requestId }
   },
 
   async fetchFriendRequests() {
     const res = await api.get("/friends/requests");
-    return res.data.data; // trả về [{ requestId, senderId, createdAt }]
+    return res.data; // trả về [{ requestId, from { _id, displayName, avatarUrl }, createdAt }]
   },
+  
 
   async acceptFriendRequest(requestId: string) {
-    const res = await api.post("/friends/accept", { requestId });
+    const res = await api.post(`/friends/requests/${requestId}/accept`);
     return res.data; // trả về { requestId }
   },
 
   async rejectFriendRequest(requestId: string) {
-    const res = await api.post("/friends/reject", { requestId });
+    const res = await api.post(`/friends/requests/${requestId}/reject`);
     return res.data; // trả về { requestId }
   },
 };
