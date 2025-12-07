@@ -44,12 +44,28 @@ export interface ConversationResponse {
   conversations: Conversation[];
 }
 
+export interface FileInfo {
+  fileName: string;
+  fileSize: number;
+  mimeType: string;
+  width?: number;
+  height?: number;
+  duration?: number; // for video/audio
+}
+
+export type MessageType = "text" | "image" | "video" | "file";
+
 export interface Message {
   _id: string;
   conversationId: string;
   senderId: string;
   content: string | null;
-  imgUrl?: string | null;
+  messageType?: MessageType;
+  fileUrl?: string | null;
+  thumbnailUrl?: string | null;
+  optimizedUrl?: string | null;
+  fileInfo?: FileInfo | null;
+  imgUrl?: string | null; // legacy support
   updatedAt?: string | null;
   createdAt: string;
   isOwn?: boolean;

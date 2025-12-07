@@ -1,8 +1,17 @@
 import { cn, formatMessageTime } from "@/lib/utils";
 import type { Conversation, Message, Participant } from "@/types/chat";
-import React, { useState } from "react";
+import { useState } from "react";
 import UserAvt from "./UserAvt";
 import { Card } from "../ui/card";
+
+// Helper function to format file size
+const formatFileSize = (bytes: number): string => {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};
 
 import { Badge } from "../ui/badge";
 import {
@@ -11,7 +20,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Trash2, Pin, Reply } from "lucide-react";
+import { MoreVertical, Trash2, Pin, Reply, Play, FileText, Download } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
@@ -62,7 +76,7 @@ const MessageItems = ({
           )}
         </div>
       )}
-
+      
       {/* Action Menu (Left for sent messages) */}
       {message.isOwn && (
         <div className="opacity-0 group-hover:opacity-100 transition-opacity px-2">
@@ -100,19 +114,118 @@ const MessageItems = ({
             {participant?.displayName}
           </span>
         )}
-        <Card
-          onClick={() => setShowDetails(!showDetails)}
-          className={cn(
-            "p-3 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md",
-            message.isOwn
-              ? "bg-chat-bubble-sent border-0 rounded-2xl rounded-tr-sm"
-              : "bg-chat-bubble-received rounded-2xl rounded-tl-sm"
-          )}
-        >
-          <p className="text-[15px] leading-relaxed wrap-break-word font-medium">
-            {message.content}
-          </p>
-        </Card>
+        {/* Message Content */}
+        {message.messageType === "image" ? (
+          // Image Message
+          <Dialog>
+            <DialogTrigger asChild>
+              <div
+                className={cn(
+                  "cursor-pointer overflow-hidden rounded-2xl transition-all duration-200 shadow-sm hover:shadow-md",
+                  message.isOwn ? "rounded-tr-sm" : "rounded-tl-sm"
+                )}
+                onClick={() => setShowDetails(!showDetails)}
+              >
+                <img
+                  src={message.optimizedUrl || message.fileUrl || message.imgUrl || ""}
+                  alt={message.fileInfo?.fileName || "Image"}
+                  className="max-w-full max-h-64 object-cover rounded-2xl"
+                  loading="lazy"
+                />
+              </div>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden bg-black/90 border-0">
+              <img
+                src={message.fileUrl || message.imgUrl || ""}
+                alt={message.fileInfo?.fileName || "Image"}
+                className="w-full h-full object-contain"
+              />
+            </DialogContent>
+          </Dialog>
+        ) : message.messageType === "video" ? (
+          // Video Message
+          <div
+            className={cn(
+              "cursor-pointer overflow-hidden rounded-2xl transition-all duration-200 shadow-sm hover:shadow-md relative",
+              message.isOwn ? "rounded-tr-sm" : "rounded-tl-sm"
+            )}
+            onClick={() => setShowDetails(!showDetails)}
+          >
+            <video
+              src={message.fileUrl || ""}
+              poster={message.thumbnailUrl || undefined}
+              controls
+              className="max-w-full max-h-64 rounded-2xl"
+              preload="metadata"
+            >
+              Your browser does not support the video tag.
+            </video>
+            {message.thumbnailUrl && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity">
+                <div className="bg-black/50 rounded-full p-3">
+                  <Play className="size-8 text-white fill-white" />
+                </div>
+              </div>
+            )}
+          </div>
+        ) : message.messageType === "file" ? (
+          // File Message
+          <Card
+            onClick={() => setShowDetails(!showDetails)}
+            className={cn(
+              "p-3 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md",
+              message.isOwn
+                ? "bg-chat-bubble-sent border-0 rounded-2xl rounded-tr-sm"
+                : "bg-chat-bubble-received rounded-2xl rounded-tl-sm"
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <FileText className="size-6 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">
+                  {message.fileInfo?.fileName || "File"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {message.fileInfo?.fileSize
+                    ? formatFileSize(message.fileInfo.fileSize)
+                    : "Unknown size"}
+                </p>
+              </div>
+              <a
+                href={message.fileUrl || ""}
+                download={message.fileInfo?.fileName}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 hover:bg-accent rounded-lg transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Download className="size-5 text-muted-foreground" />
+              </a>
+            </div>
+            {message.content && (
+              <p className="text-[15px] leading-relaxed wrap-break-word font-medium mt-2">
+                {message.content}
+              </p>
+            )}
+          </Card>
+        ) : (
+          // Text Message (default)
+          <Card
+            onClick={() => setShowDetails(!showDetails)}
+            className={cn(
+              "p-3 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md",
+              message.isOwn
+                ? "bg-chat-bubble-sent border-0 rounded-2xl rounded-tr-sm"
+                : "bg-chat-bubble-received rounded-2xl rounded-tl-sm"
+            )}
+          >
+            <p className="text-[15px] leading-relaxed wrap-break-word font-medium">
+              {message.content}
+            </p>
+          </Card>
+        )}
 
         {/* time sent */}
         {showDetails && (

@@ -30,9 +30,27 @@ export const chatService = {
   async sendDirectMessage(
     recipientId: string,
     content: string = "",
-    imgUrl: string,
-    conversationId?: string
+    imgUrl?: string,
+    conversationId?: string,
+    file?: File
   ) {
+    // If file is provided, send as FormData
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("recipientId", recipientId);
+      formData.append("content", content);
+      if (conversationId) {
+        formData.append("conversationId", conversationId);
+      }
+
+      const res = await api.post("/messages/direct", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return res.data.messages;
+    }
+
+    // Otherwise send as JSON
     const res = await api.post(`/messages/direct`, {
       recipientId,
       content,
@@ -45,8 +63,23 @@ export const chatService = {
   async sendGroupMessage(
     conversationId: string,
     content: string = "",
-    imgUrl?: string
+    imgUrl?: string,
+    file?: File
   ) {
+    // If file is provided, send as FormData
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("conversationId", conversationId);
+      formData.append("content", content);
+
+      const res = await api.post("/messages/group", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return res.data.messages;
+    }
+
+    // Otherwise send as JSON
     const res = await api.post("/messages/group", {
       conversationId,
       content,
@@ -68,6 +101,5 @@ export const chatService = {
   async markAsRead(conversationId: string) {
     await api.put(`/conversations/${conversationId}/read`);
   },
-
-  
 };
+

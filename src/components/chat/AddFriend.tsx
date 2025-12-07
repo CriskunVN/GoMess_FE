@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils";
 
 const AddFriend = ({ className }: { className?: string }) => {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState("@");
   const [loading, setLoading] = useState(false);
   const [seedRequest , setSeedRequest] = useState<string[]>([]);
   // dùng để lưu danh sách người dùng tìm kiếm
@@ -152,7 +152,7 @@ const AddFriend = ({ className }: { className?: string }) => {
                 <div className="relative flex-1">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Nhập tên hoặc email..."
+                    placeholder="Nhập tên hoặc email...(@username )"
                     className="pl-9"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}

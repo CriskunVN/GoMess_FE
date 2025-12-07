@@ -103,11 +103,11 @@ export const useChatStore = create<ChatState>()(
         }
       },
 
-      sendDirectMessage: async (recipientId, content, imgUrl = "") => {
+      sendDirectMessage: async (recipientId, content, imgUrl = "", file?: File) => {
         const { activeConversationId, addMessage } = get();
         const { user } = useAuthStore.getState();
 
-        if (!navigator.onLine) {
+        if (!navigator.onLine && !file) {
           const tempId = `temp-${Date.now()}`;
           const tempMessage: Message = {
             _id: tempId,
@@ -132,7 +132,8 @@ export const useChatStore = create<ChatState>()(
             recipientId,
             content,
             imgUrl,
-            activeConversationId || undefined
+            activeConversationId || undefined,
+            file
           );
           set((state) => ({
             conversations: state.conversations.map((c) =>
@@ -143,11 +144,11 @@ export const useChatStore = create<ChatState>()(
           console.error("Lỗi khi gửi direct message", error);
         }
       },
-      sendGroupMessage: async (conversationId, content, imgUrl = "") => {
+      sendGroupMessage: async (conversationId, content, imgUrl = "", file?: File) => {
         const { addMessage } = get();
         const { user } = useAuthStore.getState();
 
-        if (!navigator.onLine) {
+        if (!navigator.onLine && !file) {
            const tempId = `temp-${Date.now()}`;
            const tempMessage: Message = {
             _id: tempId,
@@ -168,7 +169,7 @@ export const useChatStore = create<ChatState>()(
         }
 
         try {
-          await chatService.sendGroupMessage(conversationId, content, imgUrl);
+          await chatService.sendGroupMessage(conversationId, content, imgUrl, file);
           set((state) => ({
             conversations: state.conversations.map((c) =>
               c._id === get().activeConversationId ? { ...c, seenBy: [] } : c
