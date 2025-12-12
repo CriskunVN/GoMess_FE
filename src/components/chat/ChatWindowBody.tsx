@@ -4,6 +4,8 @@ import ChatWellcomeScreen from "./ChatWellcomeScreen";
 import MessageItems from "./MessageItems";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { formatMessageTime } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Sparkles, MessageCircleHeart } from "lucide-react";
 
 const ChatWindowBody = () => {
   const {
@@ -29,10 +31,59 @@ const ChatWindowBody = () => {
   if (!selectedConvo) {
     return <ChatWellcomeScreen />;
   }
+
+  // Hiện màn hình chào mừng cho conversation mới chưa có tin nhắn
   if (!messages?.length) {
+    const otherUser = selectedConvo.participants.find(
+      (p) => p._id !== user?._id
+    );
+    const displayName = selectedConvo.type === "direct" 
+      ? otherUser?.displayName 
+      : selectedConvo.group?.name;
+    const avatarUrl = selectedConvo.type === "direct" 
+      ? otherUser?.avatarUrl 
+      : null;
+
     return (
-      <div className="flex h-full items-center justify-center text-muted-foreground">
-        Chưa có tin nhắn nào trong cuộc trò chuyện này.
+      <div className="flex h-full items-center justify-center p-8">
+        <div className="flex flex-col items-center text-center space-y-6 max-w-md">
+          {/* Avatar với hiệu ứng */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary/10 rounded-full blur-xl scale-110 animate-pulse" />
+            <Avatar className="size-28 border-4 border-primary/20 shadow-lg relative">
+              <AvatarImage src={avatarUrl ?? undefined} alt={displayName} />
+              <AvatarFallback className="text-3xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground">
+                {displayName?.charAt(0)?.toUpperCase() ?? "?"}
+              </AvatarFallback>
+            </Avatar>
+            <div className="absolute -bottom-1 -right-1 bg-primary rounded-full p-2 shadow-lg">
+              <Sparkles className="size-4 text-primary-foreground" />
+            </div>
+          </div>
+
+          {/* Thông điệp chào mừng */}
+          <div className="space-y-2">
+            <h3 className="text-xl font-semibold text-foreground">
+              {selectedConvo.type === "direct" 
+                ? `Bạn và ${displayName} đã trở thành bạn bè!`
+                : `Chào mừng đến nhóm ${displayName}!`
+              }
+            </h3>
+            <p className="text-muted-foreground">
+              {selectedConvo.type === "direct" 
+                ? "Hãy gửi lời chào để bắt đầu cuộc trò chuyện 👋"
+                : "Hãy gửi tin nhắn đầu tiên để bắt đầu cuộc trò chuyện!"
+              }
+            </p>
+          </div>
+
+          {/* Icon trang trí */}
+          <div className="flex items-center gap-3 text-primary/60">
+            <MessageCircleHeart className="size-6" />
+            <span className="text-sm font-medium">Xin chào!</span>
+            <MessageCircleHeart className="size-6 scale-x-[-1]" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -96,3 +147,4 @@ const ChatWindowBody = () => {
 };
 
 export default ChatWindowBody;
+

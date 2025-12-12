@@ -64,6 +64,8 @@ export interface ChatState {
 
   //update convo
   updateConversation: (convo: Conversation) => void;
+  //add convo
+  addConversation: (conversation: Conversation) => void;
   markConversationAsRead: (conversationId: string) => Promise<void>;
   pendingMessages: Message[];
   sendPendingMessages: () => Promise<void>;
@@ -72,6 +74,8 @@ export interface ChatState {
 export interface SocketState {
   socket: Socket | null;
   onlineUsers: string[];
+  pendingFriendRequests: any[];
   connectSocket: () => void;
   disconnectSocket: () => void;
+  clearPendingFriendRequests: () => void;
 }

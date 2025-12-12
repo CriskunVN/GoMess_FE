@@ -33,7 +33,7 @@ api.interceptors.response.use(
     // biến đếm số lần refresh token
     originalRequest._retryCount = originalRequest._retryCount || 0;
     // Nếu nhận được lỗi 403 và chưa thử refresh quá 4 lần
-    if (error.response?.status === 403 && originalRequest._retryCount < 4) {
+    if (error.response?.status === 401 || error.response?.status === 403 && originalRequest._retryCount < 4) {
       console.log("refresh token count : ", originalRequest._retryCount);
       originalRequest._retryCount += 1;
       try {

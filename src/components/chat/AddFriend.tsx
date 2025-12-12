@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { friendService } from "@/services/friendService";
 import FriendRequests from "./FriendRequests";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useSocketStore } from "@/stores/useSocketStore";
 
 interface User {
   _id: string;
@@ -39,6 +40,16 @@ const AddFriend = ({ className }: { className?: string }) => {
   const [requesting, setRequesting] = useState<string | null>(null);
   const [receivedCount, setReceivedCount] = useState(0);
   const currentUser = useAuthStore((state) => state.user);
+  const { pendingFriendRequests, clearPendingFriendRequests } = useSocketStore();
+
+  // Listen to real-time friend requests from socket
+  useEffect(() => {
+    if (pendingFriendRequests.length > 0) {
+      setReceivedCount((prev) => prev + pendingFriendRequests.length);
+      toast.info(`Bạn có ${pendingFriendRequests.length} lời mời kết bạn mới!`);
+      clearPendingFriendRequests();
+    }
+  }, [pendingFriendRequests, clearPendingFriendRequests]);
 
   useEffect(() => {
     const fetchFriends = async () => {

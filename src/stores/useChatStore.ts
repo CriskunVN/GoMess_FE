@@ -212,26 +212,29 @@ export const useChatStore = create<ChatState>()(
       addMessage: async (message: Message) => {
         try {
           const { user } = useAuthStore.getState();
-          const { fetchMessages } = get();
 
           message.isOwn = message.senderId === user?._id;
           const convoId = message.conversationId;
 
-          let prevItems = get().messages[convoId]?.items ?? [];
-
-          if (prevItems.length === 0) {
-            await fetchMessages(convoId);
-            prevItems = get().messages[convoId]?.items ?? [];
+          // Kiểm tra nếu chưa có messages cho conversation này, fetch trước
+          const currentItems = get().messages[convoId]?.items ?? [];
+          if (currentItems.length === 0) {
+            await get().fetchMessages(convoId);
           }
 
           set((state) => {
+            // Sử dụng state mới nhất từ callback để tránh stale data
+            const prevItems = state.messages[convoId]?.items ?? [];
+            
+            // Kiểm tra trùng lặp
             if (prevItems.some((m) => m._id === message._id)) {
               return state;
             }
 
-            // nếu tin nhắn là tin nhắn của cuộc trò chuyện hiện tại và không phải của mình thì đánh dấu đã đọc
+            // Nếu tin nhắn là tin nhắn của cuộc trò chuyện hiện tại và không phải của mình thì đánh dấu đã đọc
             if (state.activeConversationId === convoId && !message.isOwn) {
-              get().markConversationAsRead(convoId);
+              // Gọi async function bên ngoài set() callback
+              setTimeout(() => get().markConversationAsRead(convoId), 0);
             }
 
             return {
@@ -255,6 +258,17 @@ export const useChatStore = create<ChatState>()(
             c._id === convo._id ? { ...c, ...convo } : c
           ),
         }));
+      },
+      addConversation: (conversation) => {
+        set((state) => {
+          // Kiểm tra trùng lặp
+          if (state.conversations.some((c) => c._id === conversation._id)) {
+            return state;
+          }
+          return {
+            conversations: [conversation, ...state.conversations],
+          };
+        });
       },
       markConversationAsRead: async (conversationId: string) => {
         const { user } = useAuthStore.getState();

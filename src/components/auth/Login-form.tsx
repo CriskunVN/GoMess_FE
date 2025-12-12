@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { Label } from "../ui/label";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Loader from "../ui/Loader";
 
 const loginSchema = z.object({
@@ -149,9 +149,9 @@ export function LoginForm({
 
               <div className="text-center text-sm">
                 Bạn chưa có tài khoản?{" "}
-                <a href="/register" className="underline underline-offset-4">
+                <Link to="/register" className="underline underline-offset-4">
                   Đăng ký
-                </a>
+                </Link>
               </div>
             </div>
           </form>

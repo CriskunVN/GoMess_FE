@@ -9,6 +9,7 @@ const baseURL = import.meta.env.VITE_SOCKET_URL;
 export const useSocketStore = create<SocketState>((set, get) => ({
   socket: null,
   onlineUsers: [],
+  pendingFriendRequests: [],
   connectSocket: () => {
     const accessToken = useAuthStore.getState().accessToken;
     const existingSocket = get().socket;
@@ -57,6 +58,23 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       useChatStore.getState().updateConversation(updateConversation);
     });
 
+    // new conversation event (khi accept friend request hoặc tạo conversation mới)
+    socket.on("new-conversation", (conversation) => {
+      console.log("[socket] new-conversation received", conversation._id);
+      useChatStore.getState().addConversation(conversation);
+      
+      // Join socket room cho conversation mới
+      socket.emit("join-conversation", { conversationId: conversation._id });
+    });
+
+    // new friend request event (real-time notification)
+    socket.on("new-friend-request", (request) => {
+      console.log("[socket] new-friend-request received", request);
+      set((state) => ({
+        pendingFriendRequests: [...state.pendingFriendRequests, request],
+      }));
+    });
+
     // message read event
     socket.on("message-read", ({ conversationId, seenBy }) => {
       // console.log("[socket] message-read received", { conversationId, seenBy });
@@ -99,4 +117,8 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       });
     }
   },
+  clearPendingFriendRequests: () => {
+    set({ pendingFriendRequests: [] });
+  },
 }));
+
