@@ -1,11 +1,4 @@
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  Sparkles,
-  UserIcon,
-} from "lucide-react";
+import { Bell, ChevronsUpDown, UserIcon } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {

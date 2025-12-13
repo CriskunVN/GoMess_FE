@@ -37,7 +37,6 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({ customTrigger }) => {
 
   const [loading, setLoading] = useState(false);
   const [listLoading, setListLoading] = useState(false);
-  const {activeConversationId} = useChatStore();
 
   // Reset state khi đóng modal
   useEffect(() => {
@@ -79,7 +78,6 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({ customTrigger }) => {
       setLoading(true);
       // Gửi tin nhắn mở đầu (nếu có)
       await chatService.sendDirectMessage(
-        
         selectedFriendId,
         firstMessage || "Hi 👋",
         ""
@@ -101,7 +99,6 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({ customTrigger }) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-     
       {customTrigger ? (
         <DialogTrigger asChild>{customTrigger}</DialogTrigger>
       ) : (

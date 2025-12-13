@@ -1,5 +1,4 @@
 import type { Participant } from "@/types/chat";
-import React from "react";
 import UserAvt from "./UserAvt";
 import { Ellipsis } from "lucide-react";
 

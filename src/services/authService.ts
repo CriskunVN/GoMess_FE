@@ -1,5 +1,4 @@
 import api from "@/lib/axios";
-const apiVersion = "api/v1";
 
 export const authService = {
   signUp: async (

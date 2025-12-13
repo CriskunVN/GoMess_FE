@@ -1,5 +1,4 @@
 import { useThemeStore } from "@/stores/useThemeStore";
-import React from "react";
 import { Popover, PopoverContent } from "../ui/popover";
 import { PopoverTrigger } from "@radix-ui/react-popover";
 import { Smile } from "lucide-react";
