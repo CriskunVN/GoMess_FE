@@ -38,8 +38,8 @@ api.interceptors.response.use(
       originalRequest._retryCount += 1;
       try {
         // refresh token và cập nhật lại accessToken trong store
-        const newAccessToken = await axios
-          .post(`/auth/refresh`, { withCredentials: true })
+        const newAccessToken = await api
+          .post(`/auth/refresh`, {}, { withCredentials: true })
           .then((res) => res.data.accessToken);
 
         useAuthStore.getState().setAccessToken(newAccessToken);
