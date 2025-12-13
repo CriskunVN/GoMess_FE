@@ -151,7 +151,7 @@ export function LoginForm({
           </form>
           <div className="bg-muted relative hidden md:block">
             <img
-              src="/imgLogin.jpg"
+              src="/poster.png"
               alt="Image"
               className="absolute inset-0 h-full w-full object-cover"
             />
