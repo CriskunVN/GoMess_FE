@@ -2,7 +2,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import type { Conversation } from "@/types/chat";
 import { useRef, useState } from "react";
 import { Button } from "../ui/button";
-import { ImagePlus, Send, X, File, Loader2, Video, FileUp, Paperclip } from "lucide-react";
+import { ImagePlus, Send, X, Loader2, Video, FileUp, Paperclip } from "lucide-react";
 
 import { Input } from "../ui/input";
 import EmojiPicker from "./EmojiPicker";
@@ -35,12 +35,7 @@ const FILE_TYPES = {
 
 type FileType = keyof typeof FILE_TYPES;
 
-// Supported file types
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
-const ACCEPTED_FILE_TYPES = [...ACCEPTED_IMAGE_TYPES, ...ACCEPTED_VIDEO_TYPES, "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
   const { user } = useAuthStore();
