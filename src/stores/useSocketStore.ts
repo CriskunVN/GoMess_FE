@@ -101,6 +101,14 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     });
 
 
+    // new group chat
+    socket.on("new-group", (conv) => {
+      console.log("[socket] new-group received", conv._id);
+      useChatStore.getState().addConversation(conv);
+      // Join socket room cho group mới
+      socket.emit("join-conversation", { conversationId: conv._id });
+    });
+
 
     // handle connection error
     socket.on("connect_error", (err) => {

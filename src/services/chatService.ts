@@ -1,4 +1,5 @@
 import api from "@/lib/axios";
+import { useSocketStore } from "@/stores/useSocketStore";
 import type { ConversationResponse, Message } from "@/types/chat";
 
 interface FetchMessageProps {
@@ -95,7 +96,16 @@ export const chatService = {
       name,
       memberIds,
     });
-    return res.data.data; 
+
+    console.log("[DEBUG] createGroupConversation response:", res.data);
+    
+    const conversation = res.data.data || res.data;
+    
+    if (conversation?._id) {
+      useSocketStore.getState().socket?.emit("join-conversation", { conversationId: conversation._id });
+    }
+
+    return conversation; 
   },
   // dùng để đánh dấu tin nhắn đã đọc
   async markAsRead(conversationId: string) {
