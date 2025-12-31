@@ -9,7 +9,7 @@ import UnreadCountBadge from "./UnreadCountBadge";
 import { useSocketStore } from "@/stores/useSocketStore";
 const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
   const { user } = useAuthStore();
-  const { onlineUsers } = useSocketStore();
+  const { onlineUsers, socket } = useSocketStore();
   const {
     activeConversationId,
     setActiveConversation,
@@ -26,9 +26,15 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
 
   const handleSelectConversation = async (id: string) => {
     setActiveConversation(id);
+    
+    // Always join room when clicking into conversation to ensure membership
+    if (socket?.connected) {
+      socket.emit("join-conversation", { conversationId: id });
+      console.log("[socket] Joined room on conversation select:", id);
+    }
+    
     if (!messages[id]) {
-      // todo:  fetch messages
-      await fetchMessages();
+      await fetchMessages(id);
       console.log("Fetch Message in message card direct");
     }
   };

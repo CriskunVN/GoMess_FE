@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useAuthStore } from "./useAuthStore";
 import type { Message } from "@/types/chat";
+import { useSocketStore } from "./useSocketStore";
 
 export const useChatStore = create<ChatState>()(
   persist(
@@ -41,6 +42,10 @@ export const useChatStore = create<ChatState>()(
           );
 
           set({ conversations: uniqueConversations, convoLoading: false });
+          
+          // Join socket rooms for all fetched conversations
+          const conversationIds = uniqueConversations.map(c => c._id);
+          useSocketStore.getState().joinConversationRooms(conversationIds);
         } catch (error) {
           console.error("Lỗi khi fetchConversation", error);
           set({ convoLoading: false });
@@ -128,13 +133,43 @@ export const useChatStore = create<ChatState>()(
         }
 
         try {
-          await chatService.sendDirectMessage(
+          const response = await chatService.sendDirectMessage(
             recipientId,
             content,
             imgUrl,
             activeConversationId || undefined,
             file
           );
+          
+          console.log("[DEBUG] sendDirectMessage response:", response);
+          
+          // Handle response - could be array, single object, or nested
+          let messageData = response;
+          if (Array.isArray(response)) {
+            messageData = response[0]; // Get first message if array
+          } else if (response?.message) {
+            messageData = response.message; // If nested under 'message' key
+          }
+          
+          // Add the sent message to UI immediately for the sender
+          if (messageData && messageData._id) {
+            const sentMessage: Message = {
+              _id: messageData._id,
+              content: messageData.content || content,
+              conversationId: messageData.conversationId || activeConversationId || "",
+              senderId: messageData.senderId || user?._id || "",
+              createdAt: messageData.createdAt || new Date().toISOString(),
+              messageType: messageData.messageType || "text",
+              fileUrl: messageData.fileUrl,
+              fileInfo: messageData.fileInfo,
+              isOwn: true,
+            };
+            console.log("[DEBUG] Adding sent message to UI:", sentMessage);
+            addMessage(sentMessage);
+          } else {
+            console.warn("[DEBUG] No valid message in response, response was:", response);
+          }
+          
           set((state) => ({
             conversations: state.conversations.map((c) =>
               c._id === activeConversationId ? { ...c, seenBy: [] } : c
@@ -169,7 +204,37 @@ export const useChatStore = create<ChatState>()(
         }
 
         try {
-          await chatService.sendGroupMessage(conversationId, content, imgUrl, file);
+          const response = await chatService.sendGroupMessage(conversationId, content, imgUrl, file);
+          
+          console.log("[DEBUG] sendGroupMessage response:", response);
+          
+          // Handle response - could be array, single object, or nested
+          let messageData = response;
+          if (Array.isArray(response)) {
+            messageData = response[0]; // Get first message if array
+          } else if (response?.message) {
+            messageData = response.message; // If nested under 'message' key
+          }
+          
+          // Add the sent message to UI immediately for the sender
+          if (messageData && messageData._id) {
+            const sentMessage: Message = {
+              _id: messageData._id,
+              content: messageData.content || content,
+              conversationId: messageData.conversationId || conversationId,
+              senderId: messageData.senderId || user?._id || "",
+              createdAt: messageData.createdAt || new Date().toISOString(),
+              messageType: messageData.messageType || "text",
+              fileUrl: messageData.fileUrl,
+              fileInfo: messageData.fileInfo,
+              isOwn: true,
+            };
+            console.log("[DEBUG] Adding sent message to UI:", sentMessage);
+            addMessage(sentMessage);
+          } else {
+            console.warn("[DEBUG] No valid message in response, response was:", response);
+          }
+          
           set((state) => ({
             conversations: state.conversations.map((c) =>
               c._id === get().activeConversationId ? { ...c, seenBy: [] } : c
@@ -209,48 +274,51 @@ export const useChatStore = create<ChatState>()(
           }
         }
       },
-      addMessage: async (message: Message) => {
-        try {
-          const { user } = useAuthStore.getState();
+      addMessage: (message: Message) => {
+        const { user } = useAuthStore.getState();
+        
+        console.log("[DEBUG] addMessage called with:", {
+          messageId: message._id,
+          conversationId: message.conversationId,
+          content: message.content?.substring(0, 50),
+          senderId: message.senderId,
+        });
 
-          message.isOwn = message.senderId === user?._id;
-          const convoId = message.conversationId;
+        const convoId = message.conversationId;
+        const enrichedMessage = {
+          ...message,
+          isOwn: message.senderId === user?._id,
+        };
 
-          // Kiểm tra nếu chưa có messages cho conversation này, fetch trước
-          const currentItems = get().messages[convoId]?.items ?? [];
-          if (currentItems.length === 0) {
-            await get().fetchMessages(convoId);
+        set((state) => {
+          const prevItems = state.messages[convoId]?.items ?? [];
+          
+          // Check for duplicate
+          if (prevItems.some((m) => m._id === message._id)) {
+            console.log("[DEBUG] Duplicate message detected, skipping");
+            return state;
           }
 
-          set((state) => {
-            // Sử dụng state mới nhất từ callback để tránh stale data
-            const prevItems = state.messages[convoId]?.items ?? [];
-            
-            // Kiểm tra trùng lặp
-            if (prevItems.some((m) => m._id === message._id)) {
-              return state;
-            }
+          console.log("[DEBUG] Adding message to state, prev count:", prevItems.length);
 
-            // Nếu tin nhắn là tin nhắn của cuộc trò chuyện hiện tại và không phải của mình thì đánh dấu đã đọc
-            if (state.activeConversationId === convoId && !message.isOwn) {
-              // Gọi async function bên ngoài set() callback
-              setTimeout(() => get().markConversationAsRead(convoId), 0);
-            }
+          // Mark as read if active conversation and not own message
+          if (state.activeConversationId === convoId && !enrichedMessage.isOwn) {
+            setTimeout(() => get().markConversationAsRead(convoId), 0);
+          }
 
-            return {
-              messages: {
-                ...state.messages,
-                [convoId]: {
-                  items: [...prevItems, message],
-                  hasMore: state.messages[convoId]?.hasMore,
-                  nextCursor: state.messages[convoId]?.nextCursor ?? undefined,
-                },
+          return {
+            messages: {
+              ...state.messages,
+              [convoId]: {
+                items: [...prevItems, enrichedMessage],
+                hasMore: state.messages[convoId]?.hasMore ?? true,
+                nextCursor: state.messages[convoId]?.nextCursor ?? undefined,
               },
-            };
-          });
-        } catch (error) {
-          console.error("Lỗi khi thêm tin nhắn mới", error);
-        }
+            },
+          };
+        });
+        
+        console.log("[DEBUG] addMessage completed, new count:", get().messages[convoId]?.items?.length);
       },
       updateConversation: (convo) => {
         set((state) => ({

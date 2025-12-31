@@ -25,6 +25,32 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     // connect events
     socket.on("connect", () => {
       console.log("Đã kết nối với socket");
+      
+      // Function to join all conversation rooms
+      const joinAllRooms = () => {
+        const conversations = useChatStore.getState().conversations;
+        if (conversations.length > 0) {
+          console.log("[socket] Joining conversation rooms:", conversations.length);
+          conversations.forEach((conv) => {
+            socket.emit("join-conversation", { conversationId: conv._id });
+          });
+          return true;
+        }
+        return false;
+      };
+      
+      // Try to join rooms immediately
+      if (!joinAllRooms()) {
+        console.log("[socket] No conversations yet, will retry in 1s...");
+        // Retry after fetchConversations has time to complete
+        setTimeout(() => {
+          if (joinAllRooms()) {
+            console.log("[socket] Successfully joined rooms on retry");
+          } else {
+            console.log("[socket] Still no conversations after retry");
+          }
+        }, 1000);
+      }
     });
 
     // online users
@@ -104,15 +130,35 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     // new group chat
     socket.on("new-group", (conv) => {
       console.log("[socket] new-group received", conv._id);
+      console.log("[socket] Adding conversation and joining room for group:", conv._id);
       useChatStore.getState().addConversation(conv);
       // Join socket room cho group mới
       socket.emit("join-conversation", { conversationId: conv._id });
+      console.log("[socket] Emitted join-conversation for:", conv._id);
     });
 
 
     // handle connection error
     socket.on("connect_error", (err) => {
-      console.log("Lỗi kết nối:", err.message); // Nó sẽ hiện lý do middleware từ chối
+      console.log("Lỗi kết nối:", err.message);
+    });
+    
+    // handle disconnect
+    socket.on("disconnect", (reason) => {
+      console.log("[socket] Disconnected! Reason:", reason);
+    });
+    
+    // handle reconnect - rejoin all rooms
+    socket.io.on("reconnect", (attemptNumber) => {
+      console.log("[socket] Reconnected after", attemptNumber, "attempts");
+      // Rejoin all conversation rooms after reconnect
+      const conversations = useChatStore.getState().conversations;
+      if (conversations.length > 0) {
+        console.log("[socket] Rejoining", conversations.length, "rooms after reconnect");
+        conversations.forEach((conv) => {
+          socket.emit("join-conversation", { conversationId: conv._id });
+        });
+      }
     });
   },
   disconnectSocket: () => {
@@ -127,6 +173,23 @@ export const useSocketStore = create<SocketState>((set, get) => ({
   },
   clearPendingFriendRequests: () => {
     set({ pendingFriendRequests: [] });
+  },
+  joinConversationRooms: (conversationIds?: string[]) => {
+    const socket = get().socket;
+    if (!socket || !socket.connected) {
+      console.log("[socket] Cannot join rooms - socket not connected");
+      return;
+    }
+    
+    // If specific IDs provided, join those; otherwise join all conversations
+    const idsToJoin = conversationIds || useChatStore.getState().conversations.map(c => c._id);
+    
+    if (idsToJoin.length > 0) {
+      console.log("[socket] Joining conversation rooms:", idsToJoin.length);
+      idsToJoin.forEach((id) => {
+        socket.emit("join-conversation", { conversationId: id });
+      });
+    }
   },
 }));
 

@@ -60,7 +60,7 @@ export interface ChatState {
     file?: File
   ) => Promise<void>;
   //add message
-  addMessage: (message: Message) => Promise<void>;
+  addMessage: (message: Message) => void;
 
   //update convo
   updateConversation: (convo: Conversation) => void;
@@ -78,4 +78,5 @@ export interface SocketState {
   connectSocket: () => void;
   disconnectSocket: () => void;
   clearPendingFriendRequests: () => void;
+  joinConversationRooms: (conversationIds?: string[]) => void;
 }

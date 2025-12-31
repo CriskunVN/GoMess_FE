@@ -24,6 +24,15 @@ const ChatWindowBody = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Debug: track message changes
+  useEffect(() => {
+    console.log("[ChatWindowBody] messages changed:", {
+      activeConversationId,
+      messageCount: messages.length,
+      lastMessageId: messages[messages.length - 1]?._id,
+    });
+  }, [messages, activeConversationId]);
+
   useEffect(() => {
     scrollToBottom();
   }, [messages, activeConversationId]);

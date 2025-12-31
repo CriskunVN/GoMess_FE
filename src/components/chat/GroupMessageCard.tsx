@@ -1,5 +1,6 @@
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useChatStore } from "@/stores/useChatStore";
+import { useSocketStore } from "@/stores/useSocketStore";
 import type { Conversation } from "@/types/chat";
 import ChatCard from "./ChatCard";
 import UnreadCountBadge from "./UnreadCountBadge";
@@ -13,15 +14,22 @@ const GroupMessageCard = ({ convo }: { convo: Conversation }) => {
     messages,
     fetchMessages,
   } = useChatStore();
+  const { socket } = useSocketStore();
 
   if (!user) return null;
   const unreadCount = convo.unreadCounts[user._id];
   const name = convo.group?.name ?? "";
   const handleSelectConversation = async (id: string) => {
     setActiveConversation(id);
+    
+    // Always join room when clicking into conversation to ensure membership
+    if (socket?.connected) {
+      socket.emit("join-conversation", { conversationId: id });
+      console.log("[socket] Joined room on conversation select:", id);
+    }
+    
     if (!messages[id]) {
-      // todo fetch messages
-      await fetchMessages();
+      await fetchMessages(id);
       console.log("Fetch Message in message card group");
     }
   };

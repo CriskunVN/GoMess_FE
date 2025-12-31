@@ -48,7 +48,9 @@ export const chatService = {
       const res = await api.post("/messages/direct", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      return res.data.messages;
+      console.log("[DEBUG] sendDirectMessage API response (file):", res.data);
+      // Backend returns {status, message: 'statusString', data: messageObject}
+      return res.data.data || res.data.messages || res.data;
     }
 
     // Otherwise send as JSON
@@ -58,7 +60,9 @@ export const chatService = {
       imgUrl,
       conversationId,
     });
-    return res.data.messages;
+    console.log("[DEBUG] sendDirectMessage API response:", res.data);
+    // Backend returns {status, message: 'statusString', data: messageObject}
+    return res.data.data || res.data.messages || res.data;
   },
 
   async sendGroupMessage(
@@ -77,7 +81,10 @@ export const chatService = {
       const res = await api.post("/messages/group", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      return res.data.messages;
+      console.log("[DEBUG] sendGroupMessage API response (file):", res.data);
+      // Backend returns {status, message: 'statusString', data: messageObject}
+      // Check data first since 'message' is the status string, not the actual message
+      return res.data.data || res.data.messages || res.data;
     }
 
     // Otherwise send as JSON
@@ -86,7 +93,9 @@ export const chatService = {
       content,
       imgUrl,
     });
-    return res.data.messages;
+    console.log("[DEBUG] sendGroupMessage API response:", res.data);
+    // Backend returns {status, message: 'statusString', data: messageObject}
+    return res.data.data || res.data.messages || res.data;
   },
 
   async createGroupConversation(name: string, memberIds: string[]) {
